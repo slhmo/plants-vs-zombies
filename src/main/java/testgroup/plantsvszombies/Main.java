@@ -35,8 +35,7 @@ public class Main extends Application {
         button.toFront();
         root.getChildren().add(button);
 
-        mainMenu = new MainMenu(root);
-        mainMenu.createMenu();
+        mainMenu = MainMenu.createMenu(root);
 
         System.out.println(root.getChildren());
 

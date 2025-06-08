@@ -7,8 +7,8 @@ public class Grid {
     private Plant[][] plants = new Plant[5][9]; // sorted by x
     private ArrayList<Pea>[] peas = new ArrayList[5]; // sorted by x
 
-    final int GRID_START_X = 200;    //todo
-    final int GRID_END_X = 1200;
+    final static int GRID_START_X = 300;    //todo
+    final static int GRID_END_X = 1200;
 
     {
         for (int i = 0; i<5; i++) {
@@ -21,27 +21,27 @@ public class Grid {
     public void update() {
         /// this method will be called repeatedly
 
-        Zombie[] firstZombieInLine = new Zombie[5];   // list of closest zombies to our plants in each row
+        Zombie[] firstZombieInRow = new Zombie[5];   // list of closest zombies to our plants in each row
         for (int i = 0; i<5; i++) {
             ArrayList<Zombie> row = zombies[i];
             if (row.isEmpty()) {    // no zombies in this row
-                firstZombieInLine[i] = null;
+                firstZombieInRow[i] = null;
                 continue;
             }
 
-            Zombie firstInLine = row.getFirst();
+            Zombie firstInRow = row.getFirst();
             for (Zombie zombie : row) {
-                if (zombie.getX() < firstInLine.getX())
-                    firstInLine = zombie;
+                if (zombie.getX() < firstInRow.getX())
+                    firstInRow = zombie;
             }
-            firstZombieInLine[i] = firstInLine;
+            firstZombieInRow[i] = firstInRow;
         }
 
         // zombies eat plants?
         for (int row = 0; row < plants.length; row++) {
 
             Plant firstPlant = null;
-            for (int i = 0; i < plants[row].length; i++) {  // find first plant in this row
+            for (int i = plants[row].length; i > 0; i--) {  // find first plant in this row
                 if (plants[row][i] != null)
                 {
                     firstPlant = plants[row][i];
@@ -49,15 +49,15 @@ public class Grid {
                 }
             }
 
-            if ((firstPlant != null && firstZombieInLine[row] != null) && (firstPlant.getX() >= firstZombieInLine[row].getX())) {
-                firstZombieInLine[row].eat(firstPlant);
+            if ((firstPlant != null && firstZombieInRow[row] != null) && (firstPlant.getX() >= firstZombieInRow[row].getX())) {
+                firstZombieInRow[row].eat(firstPlant);
             }
         }
 
         // peas hit zombies?
         for (int row = 0; row < plants.length; row++) {
-            if ((!peas[row].isEmpty() && firstZombieInLine[row] != null) && (peas[row].getLast().getX() >= firstZombieInLine[row].getX())) {
-                firstZombieInLine[row].hit();
+            if ((!peas[row].isEmpty() && firstZombieInRow[row] != null) && (peas[row].getLast().getX() >= firstZombieInRow[row].getX())) {
+                firstZombieInRow[row].hit();
                 Pea tmp = peas[row].getLast();
                 peas[row].remove(tmp);
                 tmp.vanish();
@@ -65,7 +65,7 @@ public class Grid {
         }
 
         // zombies reach house?
-        for (Zombie zombie : firstZombieInLine) {
+        for (Zombie zombie : firstZombieInRow) {
             if (zombie == null)
                 continue;
             if (zombie.getX() <= GRID_START_X) {
@@ -125,21 +125,5 @@ public class Grid {
                     row.remove(tmp);
             }
         }
-    }
-
-
-    public static void main(String[] args) {
-        ArrayList<Integer> j = new ArrayList<>();
-        j.add(12);
-        j.add(14);
-
-        Integer x = 16;
-        int i;
-        for (i = 0; i<j.size() && x > j.get(i); i++) {
-        }
-        j.add(i, x);
-        System.out.println(j);
-
-
     }
 }

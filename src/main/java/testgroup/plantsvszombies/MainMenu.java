@@ -6,15 +6,30 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 
-public class MainMenu {
-    StackPane root;
-    AnchorPane anchorPane;
+public class MainMenu {     // singleton class
+    private StackPane root;
+    private AnchorPane anchorPane;
+    private static MainMenu instance = null;
+    PlayDay playDay = null;
+    ImageView continueGame;
 
-    public MainMenu(StackPane root) {
+
+    private MainMenu(StackPane root) {
         this.root = root;
     }
 
-    public void createMenu() {
+    public static MainMenu createMenu(StackPane root) {
+        if (instance == null) {
+            instance = new MainMenu(root);
+            instance.initializeAnchorPane();
+        }
+        else {
+            root.getChildren().add(instance.anchorPane);
+        }
+        return instance;
+    }
+
+    private void initializeAnchorPane() {
         LoadingScreen loadingScreen = new LoadingScreen(root);
         Task<Void> task = new Task<Void>() {
             @Override
@@ -30,8 +45,8 @@ public class MainMenu {
             root.getChildren().add(root.getChildren().size() - 1, anchorPane);
             System.out.println(root.getChildren());
         });
-
     }
+
     private void heavyTask() {
         try { //todo
             Thread.sleep(4000);
@@ -45,20 +60,21 @@ public class MainMenu {
         ImageView mainMenuBackground = new ImageView("MainMenu.png");
         mainMenuBackground.setFitWidth(1920);
         mainMenuBackground.setFitHeight(1080);
+        ImageView continueGameImg = createContinueGameImg();
         ImageView newGameImg = createNewGameImg();
         ImageView loadGameImg = createLoadGameImg();
         ImageView multiplayerImg = createMultiplayerImg();
         ImageView exitImg = createExitImg();
 
-        anchorPane.getChildren().addAll(mainMenuBackground, newGameImg, loadGameImg, multiplayerImg, exitImg);
+        anchorPane.getChildren().addAll(mainMenuBackground, newGameImg, loadGameImg, multiplayerImg, exitImg, continueGameImg);
     }
 
     private ImageView createNewGameImg() {
-        ImageView newGameImg = new ImageView("newGameMainMenu.png");
-        newGameImg.setX(1050);
+        ImageView newGameImg = new ImageView("mainMenuNewGameButton.png");
+        newGameImg.setX(1000);
         newGameImg.setY(100);
-        newGameImg.setFitWidth(600);
-        newGameImg.setFitHeight(300);
+        newGameImg.setFitWidth(750);
+        newGameImg.setFitHeight(200);
         newGameImg.setOnMouseEntered(event -> {
             newGameImg.setOpacity(0.5);
         });
@@ -66,18 +82,31 @@ public class MainMenu {
             newGameImg.setOpacity(1);
         });
         newGameImg.setOnMouseClicked(event -> {
+            updateContinueButton();
+            playDay = new PlayDay(root);
+            playDay.createGame();
             //todo
         });
 
         return newGameImg;
     }
 
+    private ImageView createContinueGameImg() {
+        continueGame = new ImageView("mainMenuContinueButton.png");
+        continueGame.setX(1000);
+        continueGame.setY(250);
+        continueGame.setFitWidth(750);
+        continueGame.setFitHeight(200);
+        continueGame.setOpacity(0.5);
+        return continueGame;
+    }
+
     private ImageView createLoadGameImg() {
-        ImageView loadGameImg = new ImageView("loadGameMainMenu.png");
-        loadGameImg.setX(1050);
-        loadGameImg.setY(300);
-        loadGameImg.setFitWidth(600);
-        loadGameImg.setFitHeight(300);
+        ImageView loadGameImg = new ImageView("mainMenuLoadButton.png");
+        loadGameImg.setX(1000);
+        loadGameImg.setY(400);
+        loadGameImg.setFitWidth(750);
+        loadGameImg.setFitHeight(200);
         loadGameImg.setOnMouseEntered(event -> {
             loadGameImg.setOpacity(0.5);
         });
@@ -92,11 +121,11 @@ public class MainMenu {
     }
 
     private ImageView createMultiplayerImg() {
-        ImageView multiplayerImg = new ImageView("multiplayerMainMenu.png");
-        multiplayerImg.setX(1050);
-        multiplayerImg.setY(500);
-        multiplayerImg.setFitWidth(600);
-        multiplayerImg.setFitHeight(300);
+        ImageView multiplayerImg = new ImageView("mainMenuMultiplayerButton.png");
+        multiplayerImg.setX(1000);
+        multiplayerImg.setY(550);
+        multiplayerImg.setFitWidth(750);
+        multiplayerImg.setFitHeight(200);
         multiplayerImg.setOnMouseEntered(event -> {
             multiplayerImg.setOpacity(0.5);
         });
@@ -109,6 +138,7 @@ public class MainMenu {
 
         return multiplayerImg;
     }
+
 
     private ImageView createExitImg() {
         ImageView exitImg = new ImageView("exitMainMenu.png");
@@ -127,5 +157,18 @@ public class MainMenu {
         });
 
         return exitImg;
+    }
+
+    private void updateContinueButton() {
+        continueGame.setOnMouseEntered(event -> {
+            continueGame.setOpacity(0.5);
+        });
+        continueGame.setOnMouseExited(event -> {
+            continueGame.setOpacity(1);
+        });
+        continueGame.setOnMouseClicked(event -> {
+            playDay.createGame();
+        });
+
     }
 }
