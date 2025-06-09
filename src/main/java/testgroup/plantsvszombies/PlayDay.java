@@ -3,16 +3,18 @@ package testgroup.plantsvszombies;
 import javafx.concurrent.Task;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import testgroup.plantsvszombies.plants.PeaShooter;
-import testgroup.plantsvszombies.plants.Plant;
+import testgroup.plantsvszombies.plants.Sunflower;
 
 
 public class PlayDay {
     private StackPane root;
     AnchorPane anchorPane = null;
     Grid grid;
-    private int selectorSelected;
+    GridPane gridPane;
+    Selector selector;
 
     public PlayDay(StackPane root) {
         this.root = root;
@@ -58,13 +60,67 @@ public class PlayDay {
         ImageView frontYardImg = new ImageView("FrontYard.png");
         frontYardImg.setFitWidth(1920);
         frontYardImg.setFitHeight(1080);
+        ImageView menuButton = createMenuButton();
+        anchorPane.getChildren().addAll(frontYardImg, menuButton);
 
         grid = new Grid();
-        AnchorPane selectorAnc = createSelector();
-        ImageView menuButton = createMenuButton();
 
-        anchorPane.getChildren().addAll(frontYardImg, selectorAnc, menuButton);
+        selector = new Selector(anchorPane);
 
+        gridPane = createGridPane();
+        anchorPane.getChildren().add(gridPane);
+
+    }
+
+    private GridPane createGridPane() {
+        GridPane pane = new GridPane();
+        pane.setLayoutX(480);
+        pane.setLayoutY(100);
+//        pane.setGridLinesVisible(true);
+        for (int i = 0; i<5; i++) {
+            for (int j = 0; j<9; j++) {
+                final int row = i;
+                final int column = j;
+                StackPane cell = new StackPane();
+                cell.setOnMouseClicked(mouseEvent -> {
+                    int selectedType = selector.selectedInt;
+                    if (selectedType != 0) {
+                        parseSelected(grid, cell, row, column, selectedType);
+                    }
+                });
+                cell.setPrefSize(152, 175);
+                pane.add(cell, j, i);
+            }
+        }
+        return pane;
+    }
+
+    private void parseSelected(Grid grid, StackPane stackPane, int row, int column, int selected) {
+        if (grid.getPlantsList()[row][column] != null) {
+            System.out.println("cell already in use");
+            return;
+        }
+
+        switch (selected) {
+            case 0:
+                return;
+
+            case 1:
+                if (Sunflower.getValue() > selector.getBalance())
+                    return;
+                new Sunflower(grid, stackPane, row, column, selector);
+                selector.deSelect();
+                return;
+
+            case 2:
+                if (PeaShooter.getValue() > selector.getBalance())
+                    return;
+                new PeaShooter(grid, stackPane, row, column, selector);
+                selector.deSelect();
+                return;
+
+            // todo
+        }
     }
 
     private ImageView createMenuButton() {
@@ -158,45 +214,6 @@ public class PlayDay {
 
         anchorPane1.getChildren().addAll(pauseMenuImg, resumeButtonImg, saveGameImg, mainMenuImg);
         return anchorPane1;
-    }
-
-    private AnchorPane createSelector() {
-        AnchorPane anchorPane1 = new AnchorPane();
-
-        ImageView selectorImg = new ImageView("selector.png");
-        selectorImg.setX(0);
-        selectorImg.setY(0);
-        selectorImg.setFitWidth(800);
-        selectorImg.setFitHeight(100);
-
-        ImageView sunflowerCard = new ImageView("card_sunflower.png");
-        setCardPlace(sunflowerCard, 0);
-
-        ImageView peaShooterCard = new ImageView("card_peashooter.png");
-        setCardPlace(peaShooterCard, 1);
-
-
-        ImageView repeaterCard = new ImageView("card_repeaterpea.png");
-        setCardPlace(repeaterCard, 2);
-
-        anchorPane1.getChildren().addAll(selectorImg, sunflowerCard, peaShooterCard, repeaterCard);
-
-        return anchorPane1;
-    }
-
-    private void setCardPlace(ImageView card, int n) {
-        card.setFitWidth(40);
-        card.setFitHeight(52);
-        card.setX(40*n + 70 );
-        card.setY(25);
-        card.setOnMouseClicked(event -> {
-            card.setY(25 + 5);
-            selectorSelected = n;
-        });
-    }
-
-    private void selectCard(int nthCard) {
-
     }
 
 

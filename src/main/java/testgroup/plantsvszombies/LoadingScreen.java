@@ -34,7 +34,7 @@ public class LoadingScreen {
         loadingScreen.setStyle("-fx-background-color: rgba(150, 75, 0, 0.0);");
 
         loadingText = new Label("loading, please wait...");
-        loadingText.setStyle("-fx-font-size: 24px; -fx-text-fill: #A52A2A;");
+        loadingText.setStyle("-fx-font-size: 38px; -fx-text-fill: #A52A2A;");
 
         loadingScreen.getChildren().add(loadingText);
         return loadingScreen;

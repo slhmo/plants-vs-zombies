@@ -24,16 +24,12 @@ public class Main extends Application {
         stage.setFullScreenExitHint("");
         stage.setFullScreenExitKeyCombination(KeyCombination.valueOf("f4"));
 
-        ImageView startingImg = new ImageView("start.jpg");
+        ImageView startingImg = new ImageView(getClass().getResource("/backgrounds/start.jpg").toString());
         startingImg.setFitWidth(1920);
         startingImg.setFitHeight(1080);
         startingImg.setX(0);
         startingImg.setY(0);
         root.getChildren().add(startingImg);
-        Button button = new Button("test");
-        root.setAlignment(button, Pos.TOP_LEFT);
-        button.toFront();
-        root.getChildren().add(button);
 
         mainMenu = MainMenu.createMenu(root);
 

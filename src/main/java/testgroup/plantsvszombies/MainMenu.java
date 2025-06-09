@@ -42,7 +42,7 @@ public class MainMenu {     // singleton class
         loadingScreen.runTask(task);
         task.setOnSucceeded(event -> {
             loadingScreen.done();
-            root.getChildren().add(root.getChildren().size() - 1, anchorPane);
+            root.getChildren().add(anchorPane);
             System.out.println(root.getChildren());
         });
     }

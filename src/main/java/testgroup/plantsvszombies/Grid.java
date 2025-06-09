@@ -130,4 +130,8 @@ public class Grid {
             }
         }
     }
+
+    public Plant[][] getPlantsList() {
+        return plants;
+    }
 }
