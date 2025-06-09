@@ -105,6 +105,7 @@ public class Selector{
     public void deSelect() {
         if (selectedCard != null)
             selectedCard.deSelect();
+        selectedInt = 0;
     }
 }
 
