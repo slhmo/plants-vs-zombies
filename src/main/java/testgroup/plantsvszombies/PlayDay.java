@@ -4,13 +4,15 @@ import javafx.concurrent.Task;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import testgroup.plantsvszombies.plants.PeaShooter;
+import testgroup.plantsvszombies.plants.Plant;
 
 
 public class PlayDay {
     private StackPane root;
     AnchorPane anchorPane = null;
     Grid grid;
-    private Plant selectorSelected;
+    private int selectorSelected;
 
     public PlayDay(StackPane root) {
         this.root = root;
@@ -46,7 +48,7 @@ public class PlayDay {
 
     private void heavyTask() {
         try { //todo
-            Thread.sleep(4000);
+            Thread.sleep(400);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -58,10 +60,10 @@ public class PlayDay {
         frontYardImg.setFitHeight(1080);
 
         grid = new Grid();
-        ImageView selectorImg = createSelector();
+        AnchorPane selectorAnc = createSelector();
         ImageView menuButton = createMenuButton();
 
-        anchorPane.getChildren().addAll(frontYardImg, selectorImg, menuButton);
+        anchorPane.getChildren().addAll(frontYardImg, selectorAnc, menuButton);
 
     }
 
@@ -158,15 +160,44 @@ public class PlayDay {
         return anchorPane1;
     }
 
-    private ImageView createSelector() {
+    private AnchorPane createSelector() {
+        AnchorPane anchorPane1 = new AnchorPane();
+
         ImageView selectorImg = new ImageView("selector.png");
         selectorImg.setX(0);
         selectorImg.setY(0);
         selectorImg.setFitWidth(800);
         selectorImg.setFitHeight(100);
-        return selectorImg;
+
+        ImageView sunflowerCard = new ImageView("card_sunflower.png");
+        setCardPlace(sunflowerCard, 0);
+
+        ImageView peaShooterCard = new ImageView("card_peashooter.png");
+        setCardPlace(peaShooterCard, 1);
+
+
+        ImageView repeaterCard = new ImageView("card_repeaterpea.png");
+        setCardPlace(repeaterCard, 2);
+
+        anchorPane1.getChildren().addAll(selectorImg, sunflowerCard, peaShooterCard, repeaterCard);
+
+        return anchorPane1;
     }
 
+    private void setCardPlace(ImageView card, int n) {
+        card.setFitWidth(40);
+        card.setFitHeight(52);
+        card.setX(40*n + 70 );
+        card.setY(25);
+        card.setOnMouseClicked(event -> {
+            card.setY(25 + 5);
+            selectorSelected = n;
+        });
+    }
+
+    private void selectCard(int nthCard) {
+
+    }
 
 
 }

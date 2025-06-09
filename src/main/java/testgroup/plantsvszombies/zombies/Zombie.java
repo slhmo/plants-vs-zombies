@@ -1,4 +1,6 @@
-package testgroup.plantsvszombies;
+package testgroup.plantsvszombies.zombies;
+
+import testgroup.plantsvszombies.plants.Plant;
 
 public class Zombie {
     private int x;

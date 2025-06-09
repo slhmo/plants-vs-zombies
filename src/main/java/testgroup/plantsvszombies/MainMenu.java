@@ -49,7 +49,7 @@ public class MainMenu {     // singleton class
 
     private void heavyTask() {
         try { //todo
-            Thread.sleep(4000);
+            Thread.sleep(400);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -160,6 +160,7 @@ public class MainMenu {     // singleton class
     }
 
     private void updateContinueButton() {
+        continueGame.setOpacity(1);
         continueGame.setOnMouseEntered(event -> {
             continueGame.setOpacity(0.5);
         });

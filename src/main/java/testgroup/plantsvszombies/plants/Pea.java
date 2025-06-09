@@ -1,4 +1,4 @@
-package testgroup.plantsvszombies;
+package testgroup.plantsvszombies.plants;
 
 public class Pea {
     private int x;

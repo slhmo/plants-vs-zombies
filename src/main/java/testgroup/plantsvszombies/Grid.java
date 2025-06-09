@@ -1,5 +1,9 @@
 package testgroup.plantsvszombies;
 
+import testgroup.plantsvszombies.plants.Pea;
+import testgroup.plantsvszombies.plants.Plant;
+import testgroup.plantsvszombies.zombies.Zombie;
+
 import java.util.ArrayList;
 
 public class Grid {

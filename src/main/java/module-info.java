@@ -7,4 +7,8 @@ module testgroup.plantsvszombies {
 
     opens testgroup.plantsvszombies to javafx.fxml;
     exports testgroup.plantsvszombies;
+    exports testgroup.plantsvszombies.plants;
+    opens testgroup.plantsvszombies.plants to javafx.fxml;
+    exports testgroup.plantsvszombies.zombies;
+    opens testgroup.plantsvszombies.zombies to javafx.fxml;
 }
