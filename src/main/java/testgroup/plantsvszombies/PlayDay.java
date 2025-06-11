@@ -6,6 +6,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import testgroup.plantsvszombies.plants.PeaShooter;
+import testgroup.plantsvszombies.plants.RepeaterPeaShooter;
+import testgroup.plantsvszombies.plants.SnowPeaShooter;
 import testgroup.plantsvszombies.plants.Sunflower;
 
 
@@ -76,7 +78,7 @@ public class PlayDay {
         GridPane pane = new GridPane();
         pane.setLayoutX(480);
         pane.setLayoutY(100);
-//        pane.setGridLinesVisible(true);
+        pane.setGridLinesVisible(true);
         for (int i = 0; i<5; i++) {
             for (int j = 0; j<9; j++) {
                 final int row = i;
@@ -84,6 +86,7 @@ public class PlayDay {
                 StackPane cell = new StackPane();
                 cell.setOnMouseClicked(mouseEvent -> {
                     int selectedType = selector.selectedInt;
+                    System.out.println("selected type int: " + selectedType);
                     if (selectedType != 0) {
                         parseSelected(grid, cell, row, column, selectedType);
                     }
@@ -96,31 +99,56 @@ public class PlayDay {
     }
 
     private void parseSelected(Grid grid, StackPane stackPane, int row, int column, int selected) {
-        if (grid.getPlantsList()[row][column] != null) {
+        if (grid.getPlantsList()[row][column] != null && selected != 19) {
             System.out.println("cell already in use");
             return;
         }
 
         switch (selected) {
+
             case 0:
                 return;
 
             case 1:
-                if (Sunflower.getValue() > selector.getBalance())
+                if (Sunflower.PRICE > selector.getBalance())
                     return;
                 new Sunflower(grid, stackPane, row, column, selector);
-                selector.deSelect();
+                selector.paySunPrice(Sunflower.PRICE);
                 return;
 
             case 2:
-                if (PeaShooter.getValue() > selector.getBalance())
+                if (PeaShooter.PRICE > selector.getBalance())
                     return;
-                new PeaShooter(grid, stackPane, row, column, selector);
-                selector.deSelect();
+                new PeaShooter(grid, stackPane, row, column);
+                selector.paySunPrice(PeaShooter.PRICE);
                 return;
 
-            // todo
+            case 3:
+                if (RepeaterPeaShooter.PRICE > selector.getBalance())
+                    return;
+                new RepeaterPeaShooter(grid, stackPane, row, column);
+                selector.paySunPrice(RepeaterPeaShooter.PRICE);
+                return;
+
+            case 4:
+                if (SnowPeaShooter.PRICE > selector.getBalance())
+                    return;
+                new SnowPeaShooter(grid, stackPane, row, column);
+                selector.paySunPrice(SnowPeaShooter.PRICE);
+                return;
+
+            // todo add plants
+
+            case 19:
+                if (grid.getPlantsList()[row][column] != null) {
+                    System.out.println("1");
+                    grid.getPlantsList()[row][column].vanish();
+                    return;
+                }
+                return;
+
         }
+
     }
 
     private ImageView createMenuButton() {

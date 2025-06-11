@@ -9,29 +9,30 @@ import testgroup.plantsvszombies.Grid;
 import testgroup.plantsvszombies.Selector;
 
 public class Sunflower extends Plant{
-    private Timeline timeline;
-    private StackPane stackPane;
+    protected Timeline timeline;
     private Selector selector;
-
-    static {
-        value = 50;
-    }
+    public static final int PRICE = 50;
 
     public Sunflower(Grid grid, StackPane stackPane, int row, int column, Selector selector) {
-        super(grid, stackPane, row, column, selector);
-        image = new ImageView(getClass().getResource("/plants/sunflower.gif").toString());
-        plant(grid, stackPane, row, column, selector);
-        timeline = new Timeline(new KeyFrame(Duration.seconds(10), event -> produceSun()));
+        super(grid, stackPane, row, column, "/plants/sunflower.gif");
+        timeline = new Timeline(new KeyFrame(Duration.seconds(25), event -> produceSun()));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
-        this.stackPane = stackPane;
         this.selector = selector;
     }
 
     private void produceSun() {
         new SunPoint(stackPane, selector);
-        System.out.println(stackPane.getChildren());
     }
+
+    @Override
+    public void vanish() {
+        System.out.println("vanishing");
+        timeline.stop();
+        grid.getPlantsList()[row][column] = null;
+        stackPane.getChildren().remove(image);
+    }
+
 
     @Override
     public int getEaten() {
@@ -42,4 +43,9 @@ public class Sunflower extends Plant{
     public int getX() {
         return 0;
     }
+
+    public void stop() {
+        // todo
+    }
+
 }

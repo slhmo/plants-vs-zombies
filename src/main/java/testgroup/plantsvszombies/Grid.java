@@ -1,5 +1,8 @@
 package testgroup.plantsvszombies;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 import testgroup.plantsvszombies.plants.Pea;
 import testgroup.plantsvszombies.plants.Plant;
 import testgroup.plantsvszombies.zombies.Zombie;
@@ -10,23 +13,33 @@ public class Grid {
     private ArrayList<Zombie>[] zombies = new ArrayList[5]; //unsorted (because zombies have different speeds)
     private Plant[][] plants = new Plant[5][9]; // sorted by x
     private ArrayList<Pea>[] peas = new ArrayList[5]; // sorted by x
+    Zombie[] firstZombieInRow = new Zombie[5];   // list of closest zombies to our plants in each row
 
-    final static int GRID_START_X = 300;    //todo
-    final static int GRID_END_X = 1200;
+    final static int GRID_START_X = 480;    //todo
+    final static int GRID_END_X = 1840;
 
-    {
+    public static final int PIXELS_PER_BLOCK = (GRID_END_X - GRID_START_X) / 9;
+
+    private Timeline timeline;
+
+    public Grid() {
         for (int i = 0; i<5; i++) {
             zombies[i] = new ArrayList<>();
             peas[i] = new ArrayList<>();
         }
+
+        timeline = new Timeline(new KeyFrame(Duration.seconds(0.05), event -> {
+            update();
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
     }
 
 
     public void update() {
         /// this method will be called repeatedly
 
-        Zombie[] firstZombieInRow = new Zombie[5];   // list of closest zombies to our plants in each row
-        for (int i = 0; i<5; i++) {
+        for (int i = 0; i<5; i++) { // find first zombies
             ArrayList<Zombie> row = zombies[i];
             if (row.isEmpty()) {    // no zombies in this row
                 firstZombieInRow[i] = null;
@@ -45,7 +58,7 @@ public class Grid {
         for (int row = 0; row < plants.length; row++) {
 
             Plant firstPlant = null;
-            for (int i = plants[row].length; i > 0; i--) {  // find first plant in this row
+            for (int i = plants[row].length - 1; i >= 0; i--) {  // find first plant in this row
                 if (plants[row][i] != null)
                 {
                     firstPlant = plants[row][i];
@@ -83,6 +96,7 @@ public class Grid {
                 continue;
             if (row.getLast().getX() >= GRID_END_X) {   // todo
                 row.getLast().vanish();
+                row.removeLast();
             }
         }
 

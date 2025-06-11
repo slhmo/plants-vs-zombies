@@ -19,7 +19,7 @@ public class SunPoint {
 
         createSunPoint();
 
-        timeline = new Timeline(new KeyFrame(Duration.seconds(2)));
+        timeline = new Timeline(new KeyFrame(Duration.seconds(10)));
         timeline.setCycleCount(1);
         timeline.setOnFinished(event -> { // player didn't pick sun
             vanish();
