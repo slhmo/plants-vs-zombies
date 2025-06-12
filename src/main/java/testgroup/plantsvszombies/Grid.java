@@ -22,19 +22,28 @@ public class Grid {
 
     private Timeline timeline;
 
-    public Grid() {
+    private PlayDay playDay;
+
+    public Grid(PlayDay playDay) {
         for (int i = 0; i<5; i++) {
             zombies[i] = new ArrayList<>();
             peas[i] = new ArrayList<>();
         }
 
-        timeline = new Timeline(new KeyFrame(Duration.seconds(0.05), event -> {
+        this.playDay = playDay;
+
+        timeline = new Timeline(new KeyFrame(Duration.seconds(0.0025), event -> {
             update();
         }));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
-    }
 
+        Timeline trace = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            printEntities();
+        }));
+        trace.setCycleCount(Timeline.INDEFINITE);
+//        trace.play();
+    }
 
     public void update() {
         /// this method will be called repeatedly
@@ -54,39 +63,35 @@ public class Grid {
             firstZombieInRow[i] = firstInRow;
         }
 
-        // zombies eat plants?
         for (int row = 0; row < plants.length; row++) {
+            for (int i = 0; i<zombies[row].size(); i++) {
+                Zombie zombie = zombies[row].get(i);
+                // zombies eat plants?
+                for (int k = 0; k<plants[row].length; k++) {
+                    Plant plant = plants[row][k];
+                        if ((plant != null && zombie != null) && (!zombie.isEating()) && (plant.getX()+10 >= zombie.getX() && plant.getX()-40 <= zombie.getX())) {
+                        zombie.eat(plant);
+                    }
+                }
 
-            Plant firstPlant = null;
-            for (int i = plants[row].length - 1; i >= 0; i--) {  // find first plant in this row
-                if (plants[row][i] != null)
-                {
-                    firstPlant = plants[row][i];
-                    break;
+                // peas hit zombies?
+                for (int j = 0; j<peas[row].size(); j++) {
+                    Pea pea = peas[row].get(j);
+                    if ((pea != null && zombie != null) && (pea.getX() >= zombie.getX() - 5 && pea.getOriginX() <= zombie.getX() + 5)) {
+                        pea.hit(zombie);
+                        peas[row].remove(pea);
+                    }
                 }
             }
-
-            if ((firstPlant != null && firstZombieInRow[row] != null) && (firstPlant.getX() >= firstZombieInRow[row].getX())) {
-                firstZombieInRow[row].eat(firstPlant);
-            }
         }
 
-        // peas hit zombies?
-        for (int row = 0; row < plants.length; row++) {
-            if ((!peas[row].isEmpty() && firstZombieInRow[row] != null) && (peas[row].getLast().getX() >= firstZombieInRow[row].getX())) {
-                firstZombieInRow[row].hit();
-                Pea tmp = peas[row].getLast();
-                peas[row].remove(tmp);
-                tmp.vanish();
-            }
-        }
 
         // zombies reach house?
         for (Zombie zombie : firstZombieInRow) {
             if (zombie == null)
                 continue;
             if (zombie.getX() <= GRID_START_X) {
-                // todo end game lost
+                playDay.gameLost();
             }
         }
 
@@ -119,10 +124,13 @@ public class Grid {
     }
 
     public void removeZombie(Zombie zombie) {
-        for (ArrayList<Zombie> row : zombies) {
-            for (Zombie tmp : row) {
-                if (zombie == tmp)     // todo: == or equals?
-                    row.remove(tmp);
+        for (int i = 0; i<zombies.length; i++) {
+            for (int j = 0; j<zombies[i].size(); j++) {
+                if (zombie == zombies[i].get(j))     // todo: == or equals?
+                {
+                    System.out.println(zombie + " " + zombies[i].get(j));
+                    zombies[i].remove(j);
+                }
             }
         }
     }
@@ -147,5 +155,81 @@ public class Grid {
 
     public Plant[][] getPlantsList() {
         return plants;
+    }
+
+    public void printEntities() {
+        System.out.println("##############zombies#############");
+        for (ArrayList<Zombie> row : zombies) {
+            for (Zombie zombie : row) {
+                if (zombie != null)
+                    System.out.print(zombie.getX() + " ");
+            }
+            System.out.println();
+        }
+        System.out.println("##############plants#############");
+        for (Plant[] row : plants) {
+            for (Plant plant : row) {
+                if(plant != null)
+                    System.out.print(plant.getX() + " ");
+            }
+            System.out.println();
+        }
+        System.out.println("##############peas#############");
+        for (ArrayList<Pea> row : peas) {
+            for (Pea pea : row) {
+                if (pea != null)
+                    System.out.print(pea.getX() + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    public void stopAll() {
+        timeline.stop();
+        for (int i = 0; i<zombies.length; i++) {
+            for (int j = 0; j<zombies[i].size(); j++) {
+                if (zombies[i].get(j) != null)
+                    zombies[i].get(j).stop();
+            }
+        }
+
+        for (int i = 0; i<peas.length; i++) {
+            for (int j = 0; j<peas[i].size(); j++) {
+                if (peas[i].get(j) != null)
+                    peas[i].get(j).stop();
+            }
+        }
+
+        for (int i = 0; i<plants.length; i++) {
+            for (int j = 0; j<plants[i].length; j++) {
+                if (plants[i][j] != null)
+                    plants[i][j].stop();
+            }
+        }
+        playDay.zombieGenerator.stop();
+    }
+    public void resumeAll() {
+        timeline.play();
+        for (int i = 0; i<zombies.length; i++) {
+            for (int j = 0; j<zombies[i].size(); j++) {
+                if (zombies[i].get(j) != null)
+                    zombies[i].get(j).resume();
+            }
+        }
+
+        for (int i = 0; i<peas.length; i++) {
+            for (int j = 0; j<peas[i].size(); j++) {
+                if (peas[i].get(j) != null)
+                    peas[i].get(j).resume();
+            }
+        }
+
+        for (int i = 0; i<plants.length; i++) {
+            for (int j = 0; j<plants[i].length; j++) {
+                if (plants[i][j] != null)
+                    plants[i][j].resume();
+            }
+        }
+        playDay.zombieGenerator.resume();
     }
 }

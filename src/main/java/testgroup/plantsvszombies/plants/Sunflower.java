@@ -7,6 +7,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import testgroup.plantsvszombies.Grid;
 import testgroup.plantsvszombies.Selector;
+import testgroup.plantsvszombies.zombies.Zombie;
 
 public class Sunflower extends Plant{
     protected Timeline timeline;
@@ -14,7 +15,7 @@ public class Sunflower extends Plant{
     public static final int PRICE = 50;
 
     public Sunflower(Grid grid, StackPane stackPane, int row, int column, Selector selector) {
-        super(grid, stackPane, row, column, "/plants/sunflower.gif");
+        super(grid, stackPane, row, column, "/plants/sunflower.gif", 4);
         timeline = new Timeline(new KeyFrame(Duration.seconds(25), event -> produceSun()));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
@@ -25,27 +26,22 @@ public class Sunflower extends Plant{
         new SunPoint(stackPane, selector);
     }
 
-    @Override
-    public void vanish() {
-        System.out.println("vanishing");
-        timeline.stop();
-        grid.getPlantsList()[row][column] = null;
-        stackPane.getChildren().remove(image);
-    }
-
-
-    @Override
-    public int getEaten() {
-        return 0;
-    }
+//    @Override
+//    public void vanish() {
+//        System.out.println("vanishing");
+//        timeline.stop();
+//        grid.getPlantsList()[row][column] = null;
+//        stackPane.getChildren().remove(image);
+//    }
 
     @Override
-    public int getX() {
-        return 0;
-    }
-
     public void stop() {
-        // todo
+        timeline.stop();
+    }
+
+    @Override
+    public void resume() {
+        timeline.play();
     }
 
 }

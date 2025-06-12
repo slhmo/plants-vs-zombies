@@ -1,16 +1,16 @@
 package testgroup.plantsvszombies.zombies;
 import javafx.animation.Timeline;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import testgroup.plantsvszombies.Grid;
 
 public class SimpleZombie extends Zombie{
-    private Timeline timeline;
-    private StackPane stackPane;
 
-    public SimpleZombie(Grid grid, StackPane stackPane){
-        super(5, grid.PIXELS_PER_BLOCK / 4);
+    public static final int HP = 4;
+    public static final int SPEED = Grid.PIXELS_PER_BLOCK / 9;
 
-        image = new ImageView(getClass().getResource("/zombies/SimpleZombie.gif").toString());
+    public SimpleZombie(Grid grid, AnchorPane anchorPane, int row){
+        super(grid, anchorPane, row, "/zombies/ZombieWalk.gif", "/zombies/ZombieAttack.gif", "/zombies/ZombieDie.gif", HP, 3);
     }
 }

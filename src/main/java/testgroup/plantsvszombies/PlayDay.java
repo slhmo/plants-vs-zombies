@@ -1,14 +1,14 @@
 package testgroup.plantsvszombies;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import testgroup.plantsvszombies.plants.PeaShooter;
-import testgroup.plantsvszombies.plants.RepeaterPeaShooter;
-import testgroup.plantsvszombies.plants.SnowPeaShooter;
-import testgroup.plantsvszombies.plants.Sunflower;
+import testgroup.plantsvszombies.plants.*;
+import testgroup.plantsvszombies.zombies.SimpleZombie;
+import testgroup.plantsvszombies.zombies.ZombieGenerator;
 
 
 public class PlayDay {
@@ -17,6 +17,8 @@ public class PlayDay {
     Grid grid;
     GridPane gridPane;
     Selector selector;
+    ZombieGenerator zombieGenerator;
+
 
     public PlayDay(StackPane root) {
         this.root = root;
@@ -65,12 +67,15 @@ public class PlayDay {
         ImageView menuButton = createMenuButton();
         anchorPane.getChildren().addAll(frontYardImg, menuButton);
 
-        grid = new Grid();
+        grid = new Grid(this);
 
         selector = new Selector(anchorPane);
 
         gridPane = createGridPane();
         anchorPane.getChildren().add(gridPane);
+
+        zombieGenerator = new ZombieGenerator(grid, anchorPane);
+        zombieGenerator.generateZombies();
 
     }
 
@@ -137,6 +142,20 @@ public class PlayDay {
                 selector.paySunPrice(SnowPeaShooter.PRICE);
                 return;
 
+            case 5:
+                if (WallNut.PRICE > selector.getBalance())
+                    return;
+                new WallNut(grid, stackPane, row, column);
+                selector.paySunPrice(WallNut.PRICE);
+                return;
+
+            case 6:
+                if (TallNut.PRICE > selector.getBalance())
+                    return;
+                new TallNut(grid, stackPane, row, column);
+                selector.paySunPrice(TallNut.PRICE);
+                return;
+
             // todo add plants
 
             case 19:
@@ -169,7 +188,7 @@ public class PlayDay {
         });
 
         menuButton.setOnMouseClicked(event -> {
-            //todo stop timeline
+            grid.stopAll();
             root.getChildren().add(pauseMenu);
         });
 
@@ -200,7 +219,8 @@ public class PlayDay {
         }));
 
         resumeButtonImg.setOnMouseClicked(event -> {
-            root.getChildren().remove(anchorPane1);   // todo
+            root.getChildren().remove(anchorPane1);
+            grid.resumeAll();
         });
 
 
@@ -244,5 +264,10 @@ public class PlayDay {
         return anchorPane1;
     }
 
+    public void gameLost() {
+        AnchorPane anchorPane1 = new AnchorPane();
 
+        root.getChildren().clear();
+        root.getChildren().add(anchorPane1);
+    }
 }

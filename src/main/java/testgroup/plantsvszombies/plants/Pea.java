@@ -18,6 +18,7 @@ public class Pea {
     private Timeline timeline;
     private static final double speed = 2;
     Grid grid;
+    private int originX;
 
     public Pea(Plant rootPlant, StackPane stackPane, Grid grid) {
         new Pea(rootPlant, stackPane, grid, "/plants/pea.png");
@@ -30,6 +31,7 @@ public class Pea {
         this.grid = grid;
 
         x = 480 + rootPlant.column * 152 + 105;
+        originX = x;
         row = rootPlant.row;
         image = new ImageView(getClass().getResource(imageUrl).toString());
         image.setX(x);
@@ -58,8 +60,20 @@ public class Pea {
     }
 
     public void hit(Zombie zombie) {
-
+        System.out.println(zombie);
+        zombie.getNormalHit();
+        vanish();
     }
 
+    public int getOriginX() {
+        return originX;
+    }
 
+    public void stop() {
+        timeline.stop();
+    }
+
+    public void resume() {
+        timeline.play();
+    }
 }

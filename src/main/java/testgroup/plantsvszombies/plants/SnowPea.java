@@ -11,6 +11,7 @@ public class SnowPea extends Pea{
 
     @Override
     public void hit(Zombie zombie) {
-
+        zombie.getSnowHit();
+        vanish();
     }
 }

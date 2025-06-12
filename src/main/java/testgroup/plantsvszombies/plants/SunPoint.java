@@ -28,7 +28,7 @@ public class SunPoint {
     }
 
     private void createSunPoint() {
-        image = new ImageView(getClass().getResource("/items/sunPoint.png").toString());
+        image = new ImageView(getClass().getResource("/items/sunPoint.gif").toString());
 
         image.setOnMouseEntered(event -> {
             image.setOpacity(0.9);

@@ -1,7 +1,7 @@
 package testgroup.plantsvszombies.zombies;
 import javafx.animation.KeyFrame;
-import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
@@ -12,6 +12,8 @@ import testgroup.plantsvszombies.plants.Plant;
 public class Zombie {
     protected ImageView walkImg;
     protected ImageView eatImg;
+    protected ImageView dieImg;
+    protected ImageView burnImg = new ImageView(getClass().getResource("/zombies/burntZombie.gif").toString());
     protected ImageView image;
 
     protected int current_HP;
@@ -19,59 +21,175 @@ public class Zombie {
     int row;
     private int x;
     protected AnchorPane anchorPane;
+    Timeline moveTimeLine;
+    Timeline eatTimeline;
+    Timeline snowTimeline;
 
     protected Grid grid;
+
+    private int counter;
+    protected boolean snowy;
+
+    protected Plant currentlyEating;
 
     public int getX() {
         return x;
     }
 
-    public Zombie(Grid grid, AnchorPane anchorPane, String walkImageUrl, String eatImageUrl, int HP, int speed){
+    public int getCurrent_HP() {
+        return current_HP;
+    }
+
+    public Zombie(Grid grid, AnchorPane anchorPane, int row, String walkImageUrl, String eatImageUrl, String dieImgUrl, int HP, int speed){
         walkImg = new ImageView(getClass().getResource(walkImageUrl).toString());
         eatImg = new ImageView(getClass().getResource(eatImageUrl).toString());
-        image = walkImg;
+        dieImg = new ImageView(getClass().getResource(dieImgUrl).toString());
+
+        this.row = row;
         this.current_HP = HP;
         this.speed = speed;
         this.anchorPane = anchorPane;
         this.grid = grid;
+
+        x = 1800;
+        walkImg.setX(x);
+        walkImg.setY(row * 175 + 120);
+        walkImg.setFitWidth(120);
+        walkImg.setFitHeight(140);
+        eatImg.setY(row * 175 + 120);
+        eatImg.setFitWidth(120);
+        eatImg.setFitHeight(140);
+        dieImg.setY(row * 175 + 120);
+        dieImg.setFitWidth(120);
+        dieImg.setFitHeight(140);
+        image = walkImg;
+        anchorPane.getChildren().add(image);
+
+        grid.placeZombie(this, row);
+
+        moveTimeLine = new Timeline(new KeyFrame(Duration.seconds(0.1), event -> {
+            move();
+        }));
+        moveTimeLine.setCycleCount(Timeline.INDEFINITE);
+        moveTimeLine.play();
     }
 
     public void getNormalHit() {
         this.current_HP -= 1;
+        System.out.println(current_HP);
         if (current_HP == 0){
-            vanish();
+            die();
         }
     }
 
     public void getSnowHit() {
-        this.speed = (int) speed/2;
-        // todo add freezing animation
+        if (!snowy) {
+            snowy = true;
+            snowTimeline = new Timeline(new KeyFrame(Duration.seconds(4), event -> {
+                snowy = false;
+                speed *= 2;
+                image.setEffect(null);
+            }));
+            speed /= 2;
+            ColorAdjust snowEffect = new ColorAdjust();
+            snowEffect.setHue(-0.5);
+            image.setEffect(snowEffect);
+            snowTimeline.setCycleCount(1);
+            snowTimeline.play();
+        }
+        snowTimeline.playFromStart();
         getNormalHit();
     }
 
     public void eat(Plant plant) {
-        plant.getEaten(this);
-        image = eatImg;
+        switchImage(eatImg);
+        currentlyEating = plant;
+        moveTimeLine.stop();
+
+        eatTimeline = new Timeline(new KeyFrame(Duration.seconds(0.5), event -> {
+            if (counter % 4 == 0) {
+                plant.HP -= 1;
+                plant.getEaten(this);
+            }
+            counter++;
+        }));
+        eatTimeline.setCycleCount(-1);
+        eatTimeline.play();
     }
 
-    private void stopEating(){
-        image = walkImg;
+    protected void move() {
+        x -= speed;
+        image.setX(x);
     }
 
-    private void vanish() {
+    public void stopEating(){
+        switchImage(walkImg);
+        eatTimeline.stop();
+        currentlyEating = null;
+        moveTimeLine.play();
+
+    }
+
+    private void die() {
         grid.removeZombie(this);
-        anchorPane.getChildren().remove(image);
-    }
-
-    public void burn(){
-        image = new ImageView(getClass().getResource("/zombies/burntZombie.gif").toString());
-        grid.removeZombie(this);
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
+        moveTimeLine.stop();
+        switchImage(dieImg);
+        if (currentlyEating != null) {
+            currentlyEating.stopEating(this);
+        }
+        Timeline tmp = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
             anchorPane.getChildren().remove(image);
         }));
-        timeline.setCycleCount(1);
-        timeline.play();
+        tmp.setCycleCount(1);
+        tmp.play();
     }
 
+    public void burn() {
+        grid.removeZombie(this);
+        moveTimeLine.stop();
+        switchImage(burnImg);
+        if (currentlyEating != null) {
+            currentlyEating.stopEating(this);
+        }
+        Timeline tmp = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
+            anchorPane.getChildren().remove(image);
+        }));
+        tmp.setCycleCount(1);
+        tmp.play();
+    }
 
+    public boolean isEating() {
+        return  (currentlyEating != null);
+    }
+
+    private void switchImage(ImageView switchTo) {
+        anchorPane.getChildren().remove(image);
+        switchTo.setX(x);
+        image = switchTo;
+        anchorPane.getChildren().add(image);
+    }
+
+    public void stop() {
+        if (isEating()) {
+            eatTimeline.stop();
+        }
+        if (!isEating()) {
+            moveTimeLine.stop();
+        }
+        if (snowy) {
+            snowTimeline.stop();
+        }
+    }
+
+    public void resume() {
+        if (isEating()) {
+            eatTimeline.play();
+        }
+        if (!isEating()) {
+            moveTimeLine.play();
+        }
+        if (snowy) {
+            snowTimeline.play();
+        }
+    }
 }

@@ -19,7 +19,7 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
         // set scene/stage/pane
         StackPane root = new StackPane();
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, 1920, 1080);
         stage.setFullScreen(true);
         stage.setFullScreenExitHint("");
         stage.setFullScreenExitKeyCombination(KeyCombination.valueOf("f4"));
