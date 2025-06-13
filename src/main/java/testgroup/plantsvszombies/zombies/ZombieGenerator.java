@@ -27,7 +27,10 @@ public class ZombieGenerator {
         random = new Random();
         timeline = new Timeline(new KeyFrame(Duration.seconds(2), event ->
         {
-            if (counter<15) {
+            if (counter<0) {
+                //wait
+            }
+            else if (counter<15) {
                 if(counter%3 == 0) {
                     generateZombie(maxType);
                 }
@@ -136,7 +139,7 @@ public class ZombieGenerator {
     }
 
     public void stop() {
-        timeline.stop();
+        timeline.pause();
     }
 
     public void resume() {

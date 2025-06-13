@@ -1,14 +1,19 @@
 package testgroup.plantsvszombies;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 import testgroup.plantsvszombies.plants.*;
 import testgroup.plantsvszombies.zombies.SimpleZombie;
 import testgroup.plantsvszombies.zombies.ZombieGenerator;
+
+import java.util.Random;
 
 
 public class PlayDay {
@@ -18,6 +23,7 @@ public class PlayDay {
     GridPane gridPane;
     Selector selector;
     ZombieGenerator zombieGenerator;
+    Timeline sunGenerator;
 
 
     public PlayDay(StackPane root) {
@@ -76,6 +82,13 @@ public class PlayDay {
 
         zombieGenerator = new ZombieGenerator(grid, anchorPane);
         zombieGenerator.generateZombies();
+
+        sunGenerator = new Timeline(new KeyFrame(Duration.seconds(15), event -> {
+            Random random = new Random();
+            new SunPoint(anchorPane, selector, random.nextInt(300, 1500), random.nextInt(150, 800));
+        }));
+        sunGenerator.setCycleCount(-1);
+        sunGenerator.play();
 
     }
 
@@ -154,6 +167,20 @@ public class PlayDay {
                     return;
                 new TallNut(grid, stackPane, row, column);
                 selector.paySunPrice(TallNut.PRICE);
+                return;
+
+            case 7:
+                if (CherryBomb.PRICE > selector.getBalance())
+                    return;
+                new CherryBomb(grid, stackPane, row, column);
+                selector.paySunPrice(CherryBomb.PRICE);
+                return;
+
+            case 8:
+                if (Jalapeno.PRICE > selector.getBalance())
+                    return;
+                new Jalapeno(grid, stackPane, row, column);
+                selector.paySunPrice(Jalapeno.PRICE);
                 return;
 
             // todo add plants
@@ -269,5 +296,13 @@ public class PlayDay {
 
         root.getChildren().clear();
         root.getChildren().add(anchorPane1);
+    }
+
+    public void stop() {
+        sunGenerator.pause();
+    }
+
+    public void resume() {
+        sunGenerator.play();
     }
 }

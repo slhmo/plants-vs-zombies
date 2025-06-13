@@ -70,7 +70,7 @@ public class Pea {
     }
 
     public void stop() {
-        timeline.stop();
+        timeline.pause();
     }
 
     public void resume() {

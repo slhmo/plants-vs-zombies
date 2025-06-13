@@ -34,12 +34,16 @@ public abstract class Plant {
         return 480 + column * 152 + 105;
     }
 
+    public int getY() {
+        return 100 + row * 175 + 75;
+    }
+
+
     public void plant(Grid grid, StackPane cell, int row, int column) {
         grid.placePlant(this, row, column);
         image.setFitHeight(100);
         image.setFitWidth(100);
         cell.getChildren().add(image);
-        System.out.println("i got planted" + row + column + this);
     }
 
     public void getEaten(Zombie zombie) {
@@ -60,12 +64,12 @@ public abstract class Plant {
 
     public void stopEating(Zombie zombie) {
         zombiesEating.remove(zombie);
-        if (zombiesEating.isEmpty())
+        if (zombiesEating.isEmpty()) {
             image.setEffect(null);
+        }
     }
 
     public void vanish() {
-        System.out.println("vanishing");
         stop();
         grid.getPlantsList()[row][column] = null;
         stackPane.getChildren().remove(image);

@@ -13,7 +13,7 @@ public class Zombie {
     protected ImageView walkImg;
     protected ImageView eatImg;
     protected ImageView dieImg;
-    protected ImageView burnImg = new ImageView(getClass().getResource("/zombies/burntZombie.gif").toString());
+    protected ImageView burnImg;
     protected ImageView image;
 
     protected int current_HP;
@@ -36,14 +36,23 @@ public class Zombie {
         return x;
     }
 
+    public int getY() {
+        return row*175 + 120;
+    }
+
     public int getCurrent_HP() {
         return current_HP;
+    }
+
+    public int getRow() {
+        return row;
     }
 
     public Zombie(Grid grid, AnchorPane anchorPane, int row, String walkImageUrl, String eatImageUrl, String dieImgUrl, int HP, int speed){
         walkImg = new ImageView(getClass().getResource(walkImageUrl).toString());
         eatImg = new ImageView(getClass().getResource(eatImageUrl).toString());
         dieImg = new ImageView(getClass().getResource(dieImgUrl).toString());
+        burnImg = new ImageView(getClass().getResource("/zombies/burntZombie.gif").toString());
 
         this.row = row;
         this.current_HP = HP;
@@ -62,6 +71,8 @@ public class Zombie {
         dieImg.setY(row * 175 + 120);
         dieImg.setFitWidth(120);
         dieImg.setFitHeight(140);
+        burnImg.setX(x);
+        burnImg.setY(row * 175 + 120);
         image = walkImg;
         anchorPane.getChildren().add(image);
 
@@ -105,6 +116,7 @@ public class Zombie {
         switchImage(eatImg);
         currentlyEating = plant;
         moveTimeLine.stop();
+        plant.getEaten(this);
 
         eatTimeline = new Timeline(new KeyFrame(Duration.seconds(0.5), event -> {
             if (counter % 4 == 0) {
@@ -122,7 +134,7 @@ public class Zombie {
         image.setX(x);
     }
 
-    public void stopEating(){
+    public void stopEating() {
         switchImage(walkImg);
         eatTimeline.stop();
         currentlyEating = null;
@@ -136,6 +148,7 @@ public class Zombie {
         switchImage(dieImg);
         if (currentlyEating != null) {
             currentlyEating.stopEating(this);
+            eatTimeline.stop();
         }
         Timeline tmp = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
             anchorPane.getChildren().remove(image);
@@ -150,6 +163,7 @@ public class Zombie {
         switchImage(burnImg);
         if (currentlyEating != null) {
             currentlyEating.stopEating(this);
+            eatTimeline.stop();
         }
         Timeline tmp = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
             anchorPane.getChildren().remove(image);
@@ -171,13 +185,13 @@ public class Zombie {
 
     public void stop() {
         if (isEating()) {
-            eatTimeline.stop();
+            eatTimeline.pause();
         }
         if (!isEating()) {
-            moveTimeLine.stop();
+            moveTimeLine.pause();
         }
         if (snowy) {
-            snowTimeline.stop();
+            snowTimeline.pause();
         }
     }
 
@@ -191,5 +205,10 @@ public class Zombie {
         if (snowy) {
             snowTimeline.play();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "zombie x: " + x + ", y: " + getY();
     }
 }

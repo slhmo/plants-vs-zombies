@@ -9,7 +9,7 @@ public class Selector{
     AnchorPane root ;
     AnchorPane anchorPane;
     public int selectedInt = 0;
-    private int sunBalance = 50000;
+    private int sunBalance = 250;
     Label sunValueCounter;
     private Card selectedCard;
 

@@ -16,7 +16,7 @@ public class Sunflower extends Plant{
 
     public Sunflower(Grid grid, StackPane stackPane, int row, int column, Selector selector) {
         super(grid, stackPane, row, column, "/plants/sunflower.gif", 4);
-        timeline = new Timeline(new KeyFrame(Duration.seconds(25), event -> produceSun()));
+        timeline = new Timeline(new KeyFrame(Duration.seconds(15), event -> produceSun()));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
         this.selector = selector;
@@ -26,17 +26,9 @@ public class Sunflower extends Plant{
         new SunPoint(stackPane, selector);
     }
 
-//    @Override
-//    public void vanish() {
-//        System.out.println("vanishing");
-//        timeline.stop();
-//        grid.getPlantsList()[row][column] = null;
-//        stackPane.getChildren().remove(image);
-//    }
-
     @Override
     public void stop() {
-        timeline.stop();
+        timeline.pause();
     }
 
     @Override

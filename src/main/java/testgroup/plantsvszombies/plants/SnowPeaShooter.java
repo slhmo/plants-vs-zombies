@@ -15,5 +15,6 @@ public class SnowPeaShooter extends PeaShooter{
 
     @Override
     protected void shoot() {
-        new SnowPea(this, stackPane, grid);
+        if (!grid.getZombies()[row].isEmpty())
+            new SnowPea(this, stackPane, grid);
     }}

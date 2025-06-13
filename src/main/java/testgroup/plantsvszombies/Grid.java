@@ -15,8 +15,8 @@ public class Grid {
     private ArrayList<Pea>[] peas = new ArrayList[5]; // sorted by x
     Zombie[] firstZombieInRow = new Zombie[5];   // list of closest zombies to our plants in each row
 
-    final static int GRID_START_X = 480;    //todo
-    final static int GRID_END_X = 1840;
+    public final static int GRID_START_X = 480;    //todo
+    public final static int GRID_END_X = 1840;
 
     public static final int PIXELS_PER_BLOCK = (GRID_END_X - GRID_START_X) / 9;
 
@@ -64,7 +64,7 @@ public class Grid {
         }
 
         for (int row = 0; row < plants.length; row++) {
-            for (int i = 0; i<zombies[row].size(); i++) {
+            for (int i = zombies[row].size()-1; i>=0; i--) {
                 Zombie zombie = zombies[row].get(i);
                 // zombies eat plants?
                 for (int k = 0; k<plants[row].length; k++) {
@@ -75,7 +75,7 @@ public class Grid {
                 }
 
                 // peas hit zombies?
-                for (int j = 0; j<peas[row].size(); j++) {
+                for (int j = peas[row].size()-1; j>=0; j--) {
                     Pea pea = peas[row].get(j);
                     if ((pea != null && zombie != null) && (pea.getX() >= zombie.getX() - 5 && pea.getOriginX() <= zombie.getX() + 5)) {
                         pea.hit(zombie);
@@ -157,6 +157,10 @@ public class Grid {
         return plants;
     }
 
+    public ArrayList<Zombie>[] getZombies() {
+        return zombies;
+    }
+
     public void printEntities() {
         System.out.println("##############zombies#############");
         for (ArrayList<Zombie> row : zombies) {
@@ -185,40 +189,47 @@ public class Grid {
     }
 
     public void stopAll() {
-        timeline.stop();
+        playDay.zombieGenerator.stop();
+
         for (int i = 0; i<zombies.length; i++) {
-            for (int j = 0; j<zombies[i].size(); j++) {
-                if (zombies[i].get(j) != null)
+            for (int j = zombies[i].size()-1; j>=0; j--) {
+                if (zombies[i].get(j) != null) {
                     zombies[i].get(j).stop();
+                }
             }
         }
 
         for (int i = 0; i<peas.length; i++) {
-            for (int j = 0; j<peas[i].size(); j++) {
-                if (peas[i].get(j) != null)
+            for (int j = peas[i].size()-1; j>=0; j--) {
+                if (peas[i].get(j) != null) {
                     peas[i].get(j).stop();
+                }
             }
         }
 
         for (int i = 0; i<plants.length; i++) {
             for (int j = 0; j<plants[i].length; j++) {
-                if (plants[i][j] != null)
+                if (plants[i][j] != null) {
                     plants[i][j].stop();
+                }
             }
         }
-        playDay.zombieGenerator.stop();
+
+        playDay.stop();
+        timeline.pause();
     }
     public void resumeAll() {
         timeline.play();
+        playDay.zombieGenerator.resume();
         for (int i = 0; i<zombies.length; i++) {
-            for (int j = 0; j<zombies[i].size(); j++) {
+            for (int j = zombies[i].size()-1; j>=0; j--) {
                 if (zombies[i].get(j) != null)
                     zombies[i].get(j).resume();
             }
         }
 
         for (int i = 0; i<peas.length; i++) {
-            for (int j = 0; j<peas[i].size(); j++) {
+            for (int j = peas[i].size()-1; j>=0; j--) {
                 if (peas[i].get(j) != null)
                     peas[i].get(j).resume();
             }
@@ -230,6 +241,6 @@ public class Grid {
                     plants[i][j].resume();
             }
         }
-        playDay.zombieGenerator.resume();
+        playDay.resume();
     }
 }

@@ -15,11 +15,14 @@ public class RepeaterPeaShooter extends PeaShooter{
 
     @Override
     protected void shoot() {
-        Timeline innerTimeLine = new Timeline(new KeyFrame(Duration.seconds(0.2), event -> {
+        if (!grid.getZombies()[row].isEmpty()){
+
+            Timeline innerTimeLine = new Timeline(new KeyFrame(Duration.seconds(0.2), event -> {
+                new Pea(this, stackPane, grid);
+            }));
+            innerTimeLine.setCycleCount(1);
+            innerTimeLine.play();
             new Pea(this, stackPane, grid);
-        }));
-        innerTimeLine.setCycleCount(1);
-        innerTimeLine.play();
-        new Pea(this, stackPane, grid);
+        }
     }
 }

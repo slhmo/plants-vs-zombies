@@ -32,7 +32,8 @@ public class PeaShooter extends Plant{
 //    }
 
     protected void shoot() {
-        new Pea(this, stackPane, grid);
+        if (!grid.getZombies()[row].isEmpty())
+            new Pea(this, stackPane, grid);
     }
 
 
@@ -43,7 +44,7 @@ public class PeaShooter extends Plant{
 
     @Override
     public void stop() {
-        timeline.stop();
+        timeline.pause();
     }
 
     @Override
