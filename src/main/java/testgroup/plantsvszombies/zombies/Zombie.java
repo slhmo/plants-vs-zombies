@@ -8,8 +8,10 @@ import javafx.util.Duration;
 import testgroup.plantsvszombies.Grid;
 import testgroup.plantsvszombies.plants.Plant;
 
+import java.io.Serializable;
 
-public class Zombie {
+
+public class Zombie implements Serializable {
     protected ImageView walkImg;
     protected ImageView eatImg;
     protected ImageView dieImg;
@@ -20,10 +22,10 @@ public class Zombie {
     int speed;
     int row;
     private int x;
-    protected AnchorPane anchorPane;
-    Timeline moveTimeLine;
-    Timeline eatTimeline;
-    Timeline snowTimeline;
+    protected transient AnchorPane anchorPane;
+    transient Timeline moveTimeLine;
+    transient Timeline eatTimeline;
+    transient Timeline snowTimeline;
 
     protected Grid grid;
 

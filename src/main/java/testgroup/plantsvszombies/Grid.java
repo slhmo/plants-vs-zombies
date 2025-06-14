@@ -2,14 +2,18 @@ package testgroup.plantsvszombies;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
+import testgroup.plantsvszombies.plants.Card;
 import testgroup.plantsvszombies.plants.Pea;
 import testgroup.plantsvszombies.plants.Plant;
 import testgroup.plantsvszombies.zombies.Zombie;
+import testgroup.plantsvszombies.zombies.ZombieGenerator;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Grid {
+public class Grid implements Serializable {
     private ArrayList<Zombie>[] zombies = new ArrayList[5]; //unsorted (because zombies have different speeds)
     private Plant[][] plants = new Plant[5][9]; // sorted by x
     private ArrayList<Pea>[] peas = new ArrayList[5]; // sorted by x
@@ -20,15 +24,19 @@ public class Grid {
 
     public static final int PIXELS_PER_BLOCK = (GRID_END_X - GRID_START_X) / 9;
 
-    private Timeline timeline;
+    private transient Timeline timeline;
 
-    private PlayDay playDay;
+    private transient PlayDay playDay;
+    ZombieGenerator zombieGenerator;
 
-    public Grid(PlayDay playDay) {
+    public Grid(PlayDay playDay, AnchorPane anchorPane) {
         for (int i = 0; i<5; i++) {
             zombies[i] = new ArrayList<>();
             peas[i] = new ArrayList<>();
         }
+
+        zombieGenerator = new ZombieGenerator(this, anchorPane);
+        zombieGenerator.generateZombies();
 
         this.playDay = playDay;
 
@@ -189,7 +197,8 @@ public class Grid {
     }
 
     public void stopAll() {
-        playDay.zombieGenerator.stop();
+        zombieGenerator.stop();
+        Card.stop();
 
         for (int i = 0; i<zombies.length; i++) {
             for (int j = zombies[i].size()-1; j>=0; j--) {
@@ -220,7 +229,8 @@ public class Grid {
     }
     public void resumeAll() {
         timeline.play();
-        playDay.zombieGenerator.resume();
+        Card.resume();
+        zombieGenerator.resume();
         for (int i = 0; i<zombies.length; i++) {
             for (int j = zombies[i].size()-1; j>=0; j--) {
                 if (zombies[i].get(j) != null)
@@ -242,5 +252,14 @@ public class Grid {
             }
         }
         playDay.resume();
+    }
+
+    public boolean noZombiesInMap() {
+        boolean tmp = true;
+        for (int row = 0; row<zombies.length; row++) {
+            if(!zombies[row].isEmpty())
+                tmp = false;
+        }
+        return tmp;
     }
 }

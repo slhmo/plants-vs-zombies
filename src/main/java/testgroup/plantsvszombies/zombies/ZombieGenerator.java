@@ -2,21 +2,24 @@ package testgroup.plantsvszombies.zombies;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import testgroup.plantsvszombies.Grid;
+import testgroup.plantsvszombies.MainMenu;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class ZombieGenerator {
+public class ZombieGenerator implements Serializable {
     private Grid grid;
-    private AnchorPane anchorPane;
-    private StackPane stackPane;
+    private transient AnchorPane anchorPane;
     int maxType = 1;
-    int counter = 0;
+    int counter = -5;
     private Random random;
-    Timeline timeline;
+    transient Timeline timeline;
 
     public ZombieGenerator(Grid grid, AnchorPane anchorPane) {
         this.grid = grid;
@@ -25,7 +28,7 @@ public class ZombieGenerator {
 
     public void generateZombies() {
         random = new Random();
-        timeline = new Timeline(new KeyFrame(Duration.seconds(2), event ->
+        timeline = new Timeline(new KeyFrame(Duration.seconds(0.2), event ->
         {
             if (counter<0) {
                 //wait
@@ -78,8 +81,19 @@ public class ZombieGenerator {
                 }
             }
 
-            else if (counter == 60) {
-                // todo
+            else {
+                if (grid.noZombiesInMap()) {
+                    System.out.println("won");
+                    Button button = new Button("won");
+                    button.setLayoutX(800);
+                    button.setOnMouseClicked(event1 -> {
+                        grid.stopAll();
+                        StackPane root = (StackPane) anchorPane.getParent();
+                        root.getChildren().clear();
+                        MainMenu.createMenu(root);
+                    });
+                    anchorPane.getChildren().add(button);
+                }
             }
 
             counter++;

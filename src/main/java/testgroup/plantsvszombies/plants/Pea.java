@@ -9,13 +9,15 @@ import javafx.util.Duration;
 import testgroup.plantsvszombies.Grid;
 import testgroup.plantsvszombies.zombies.Zombie;
 
-public class Pea {
+import java.io.Serializable;
+
+public class Pea implements Serializable {
     private int x;
     private int row;
     private Plant rootPlant;
     protected ImageView image;
-    private AnchorPane anchorPane;
-    private Timeline timeline;
+    private transient AnchorPane anchorPane;
+    private transient Timeline timeline;
     private static final double speed = 2;
     Grid grid;
     private int originX;

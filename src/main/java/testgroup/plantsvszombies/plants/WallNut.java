@@ -10,7 +10,6 @@ import testgroup.plantsvszombies.Grid;
 import testgroup.plantsvszombies.zombies.Zombie;
 
 public class WallNut extends Plant {
-    public static final int PRICE = 50;
 
     public WallNut(Grid grid, StackPane stackPane, int row, int column) {
         super(grid, stackPane, row, column, "/plants/WallNut.gif", 10);

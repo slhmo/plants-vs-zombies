@@ -6,15 +6,15 @@ import javafx.scene.layout.StackPane;
 import testgroup.plantsvszombies.Grid;
 import testgroup.plantsvszombies.zombies.Zombie;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public abstract class Plant {
+public abstract class Plant implements Serializable {
     protected ImageView image;
     protected Grid grid;
     protected int row;
     protected int column;
     protected StackPane stackPane;
-    public final static int PRICE = 0;
     public int HP;
     protected ArrayList<Zombie> zombiesEating = new ArrayList<>();
 
@@ -37,7 +37,6 @@ public abstract class Plant {
     public int getY() {
         return 100 + row * 175 + 75;
     }
-
 
     public void plant(Grid grid, StackPane cell, int row, int column) {
         grid.placePlant(this, row, column);

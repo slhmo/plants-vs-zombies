@@ -6,7 +6,6 @@ import testgroup.plantsvszombies.Grid;
 import testgroup.plantsvszombies.zombies.Zombie;
 
 public class TallNut extends Plant {
-    public static final int PRICE = 125;
 
     public TallNut(Grid grid, StackPane stackPane, int row, int column) {
         super(grid, stackPane, row, column, "/plants/TallNut.png", 15);

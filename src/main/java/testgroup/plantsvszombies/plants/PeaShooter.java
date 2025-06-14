@@ -9,7 +9,6 @@ import testgroup.plantsvszombies.Grid;
 import testgroup.plantsvszombies.zombies.Zombie;
 
 public class PeaShooter extends Plant{
-    public static final int PRICE = 100;
     protected Timeline timeline;
 
     public PeaShooter(Grid grid, StackPane stackPane, int row, int column) {
@@ -22,14 +21,6 @@ public class PeaShooter extends Plant{
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
-
-//    @Override
-//    public void vanish() {
-//        System.out.println("vanishing");
-//        timeline.stop();
-//        grid.getPlantsList()[row][column] = null;
-//        stackPane.getChildren().remove(image);
-//    }
 
     protected void shoot() {
         if (!grid.getZombies()[row].isEmpty())

@@ -12,7 +12,6 @@ import testgroup.plantsvszombies.zombies.Zombie;
 public class Sunflower extends Plant{
     protected Timeline timeline;
     private Selector selector;
-    public static final int PRICE = 50;
 
     public Sunflower(Grid grid, StackPane stackPane, int row, int column, Selector selector) {
         super(grid, stackPane, row, column, "/plants/sunflower.gif", 4);

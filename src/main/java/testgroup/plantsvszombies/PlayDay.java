@@ -4,6 +4,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -13,16 +14,17 @@ import testgroup.plantsvszombies.plants.*;
 import testgroup.plantsvszombies.zombies.SimpleZombie;
 import testgroup.plantsvszombies.zombies.ZombieGenerator;
 
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 
-public class PlayDay {
+public class PlayDay implements Serializable {
     private StackPane root;
     AnchorPane anchorPane = null;
     Grid grid;
     GridPane gridPane;
     Selector selector;
-    ZombieGenerator zombieGenerator;
     Timeline sunGenerator;
 
 
@@ -31,14 +33,6 @@ public class PlayDay {
     }
 
     public void createGame() {
-        if (anchorPane != null) {
-            // game already created
-            root.getChildren().clear();
-            root.getChildren().add(anchorPane);
-            System.out.println(root.getChildren());
-            return;
-        }
-
         LoadingScreen loadingScreen = new LoadingScreen(root);
 
         Task<Void> task = new Task<Void>() {
@@ -58,6 +52,14 @@ public class PlayDay {
         });
     }
 
+    public void continueGame() {
+        // game already created
+        root.getChildren().clear();
+        root.getChildren().add(anchorPane);
+        System.out.println(root.getChildren());
+        grid.resumeAll();
+    }
+
     private void heavyTask() {
         try { //todo
             Thread.sleep(400);
@@ -73,39 +75,90 @@ public class PlayDay {
         ImageView menuButton = createMenuButton();
         anchorPane.getChildren().addAll(frontYardImg, menuButton);
 
-        grid = new Grid(this);
+        createChooserMenu();
 
-        selector = new Selector(anchorPane);
+    }
 
-        gridPane = createGridPane();
-        anchorPane.getChildren().add(gridPane);
+    private void createChooserMenu() {
+        ArrayList<Card> chosenCards = new ArrayList<>(6);
 
-        zombieGenerator = new ZombieGenerator(grid, anchorPane);
-        zombieGenerator.generateZombies();
+        ImageView chooserMenuImg = new ImageView(getClass().getResource("/selector/chooserMenu.png").toString());
+        chooserMenuImg.setFitWidth(600);
+        chooserMenuImg.setFitHeight(600);
+        chooserMenuImg.setX(660);
+        chooserMenuImg.setY(140);
 
-        sunGenerator = new Timeline(new KeyFrame(Duration.seconds(15), event -> {
-            Random random = new Random();
-            new SunPoint(anchorPane, selector, random.nextInt(300, 1500), random.nextInt(150, 800));
-        }));
-        sunGenerator.setCycleCount(-1);
-        sunGenerator.play();
+        for (Card card : Card.getCards()) {
+            if (card != null) {
+                card.getImageView().setFitWidth(95);
+                card.getImageView().setFitHeight(120);
+            }
+        }
 
+        GridPane chooserMenuGrid = new GridPane(2, 10);
+        chooserMenuGrid.setLayoutX(670);
+        chooserMenuGrid.setLayoutY(200);
+        int count = 0;
+        for (int i = 0; i<3; i++) {
+            for (int j = 0; j<6; j++) {
+                if (Card.getCards()[count] != null) {
+                    StackPane cell = new StackPane();
+                    cell.getChildren().add(Card.getCards()[count].getImageView());
+                    final int id = count;
+                    cell.setOnMouseClicked(event -> {
+                        if (chosenCards.contains(Card.getCards()[id])) {
+                            Card.getCards()[id].getImageView().setOpacity(1);
+                            chosenCards.remove(Card.getCards()[id]);
+                        }
+                        else if (!chosenCards.contains(Card.getCards()[id]) && chosenCards.size() < 6){
+                            Card.getCards()[id].getImageView().setOpacity(0.6);
+                            chosenCards.add(Card.getCards()[id]);
+                        }
+                        System.out.println(chosenCards);
+                    });
+                    chooserMenuGrid.add(cell, j, i);
+                }
+                count++;
+            }
+        }
+
+        Button play = new Button("play");
+        play.setLayoutX(1000);
+        play.setLayoutY(800);
+        play.setOnMouseClicked(event -> {
+            if (chosenCards.size() == 6) {
+                Card.revert();
+                anchorPane.getChildren().removeAll(chooserMenuImg, chooserMenuGrid, play);
+                selector = new Selector(anchorPane, chosenCards);
+                gridPane = createGridPane();
+                anchorPane.getChildren().add(gridPane);
+                grid = new Grid(this, anchorPane);
+                sunGenerator = new Timeline(new KeyFrame(Duration.seconds(15), event1 -> {
+                    Random random = new Random();
+                    new SunPoint(anchorPane, selector, random.nextInt(300, 1500), random.nextInt(150, 800));
+                }));
+                sunGenerator.setCycleCount(-1);
+                sunGenerator.play();
+            }
+        });
+
+        anchorPane.getChildren().addAll(chooserMenuImg, chooserMenuGrid, play);
     }
 
     private GridPane createGridPane() {
         GridPane pane = new GridPane();
         pane.setLayoutX(480);
         pane.setLayoutY(100);
-        pane.setGridLinesVisible(true);
+//        pane.setGridLinesVisible(true);
         for (int i = 0; i<5; i++) {
             for (int j = 0; j<9; j++) {
                 final int row = i;
                 final int column = j;
                 StackPane cell = new StackPane();
                 cell.setOnMouseClicked(mouseEvent -> {
-                    int selectedType = selector.selectedInt;
+                    int selectedType = selector.getSelectedId();
                     System.out.println("selected type int: " + selectedType);
-                    if (selectedType != 0) {
+                    if (selectedType != -1) {
                         parseSelected(grid, cell, row, column, selectedType);
                     }
                 });
@@ -122,66 +175,47 @@ public class PlayDay {
             return;
         }
 
+        if (!selector.selectedAvailable()) {
+            return;
+        }
+
+        selector.getSelectedCard().place();
+
         switch (selected) {
+            case -1:
+                return;
 
             case 0:
-                return;
+                new Sunflower(grid, stackPane, row, column, selector);
+                break;
 
             case 1:
-                if (Sunflower.PRICE > selector.getBalance())
-                    return;
-                new Sunflower(grid, stackPane, row, column, selector);
-                selector.paySunPrice(Sunflower.PRICE);
-                return;
+                new PeaShooter(grid, stackPane, row, column);
+                break;
 
             case 2:
-                if (PeaShooter.PRICE > selector.getBalance())
-                    return;
-                new PeaShooter(grid, stackPane, row, column);
-                selector.paySunPrice(PeaShooter.PRICE);
-                return;
+                new RepeaterPeaShooter(grid, stackPane, row, column);
+                break;
 
             case 3:
-                if (RepeaterPeaShooter.PRICE > selector.getBalance())
-                    return;
-                new RepeaterPeaShooter(grid, stackPane, row, column);
-                selector.paySunPrice(RepeaterPeaShooter.PRICE);
-                return;
+                new SnowPeaShooter(grid, stackPane, row, column);
+                break;
 
             case 4:
-                if (SnowPeaShooter.PRICE > selector.getBalance())
-                    return;
-                new SnowPeaShooter(grid, stackPane, row, column);
-                selector.paySunPrice(SnowPeaShooter.PRICE);
-                return;
+                new WallNut(grid, stackPane, row, column);
+                break;
 
             case 5:
-                if (WallNut.PRICE > selector.getBalance())
-                    return;
-                new WallNut(grid, stackPane, row, column);
-                selector.paySunPrice(WallNut.PRICE);
-                return;
+                new TallNut(grid, stackPane, row, column);
+                break;
 
             case 6:
-                if (TallNut.PRICE > selector.getBalance())
-                    return;
-                new TallNut(grid, stackPane, row, column);
-                selector.paySunPrice(TallNut.PRICE);
-                return;
+                new CherryBomb(grid, stackPane, row, column);
+                break;
 
             case 7:
-                if (CherryBomb.PRICE > selector.getBalance())
-                    return;
-                new CherryBomb(grid, stackPane, row, column);
-                selector.paySunPrice(CherryBomb.PRICE);
-                return;
-
-            case 8:
-                if (Jalapeno.PRICE > selector.getBalance())
-                    return;
                 new Jalapeno(grid, stackPane, row, column);
-                selector.paySunPrice(Jalapeno.PRICE);
-                return;
+                break;
 
             // todo add plants
 
@@ -191,10 +225,9 @@ public class PlayDay {
                     grid.getPlantsList()[row][column].vanish();
                     return;
                 }
-                return;
-
+                break;
         }
-
+        selector.paySunPrice(selector.getSelectedCard().getPrice());
     }
 
     private ImageView createMenuButton() {
@@ -215,7 +248,8 @@ public class PlayDay {
         });
 
         menuButton.setOnMouseClicked(event -> {
-            grid.stopAll();
+            if (grid != null)
+                grid.stopAll();
             root.getChildren().add(pauseMenu);
         });
 
@@ -247,7 +281,8 @@ public class PlayDay {
 
         resumeButtonImg.setOnMouseClicked(event -> {
             root.getChildren().remove(anchorPane1);
-            grid.resumeAll();
+            if (grid != null)
+                grid.resumeAll();
         });
 
 
@@ -265,7 +300,13 @@ public class PlayDay {
         }));
 
         saveGameImg.setOnMouseClicked(event -> {
-            // todo
+            try {
+                ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("saves/save.dat"));
+                out.writeObject(grid);
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
 
@@ -292,10 +333,18 @@ public class PlayDay {
     }
 
     public void gameLost() {
-        AnchorPane anchorPane1 = new AnchorPane();
+        grid.stopAll();
+        Button button = new Button("lost");
+        button.setLayoutX(800);
+        button.setOnMouseClicked(event1 -> {
+            root.getChildren().clear();
+            MainMenu.createMenu(root);
+        });
+        anchorPane.getChildren().add(button);
+    }
 
-        root.getChildren().clear();
-        root.getChildren().add(anchorPane1);
+    public void gameWon() {
+
     }
 
     public void stop() {

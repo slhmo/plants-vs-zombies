@@ -7,7 +7,6 @@ import javafx.util.Duration;
 import testgroup.plantsvszombies.Grid;
 
 public class SnowPeaShooter extends PeaShooter{
-    public static final int PRICE = 175;
 
     public SnowPeaShooter(Grid grid, StackPane stackPane, int row, int column) {
         super(grid, stackPane, row, column, "/plants/SnowPeaShooter.gif", 4); //todo fix gif

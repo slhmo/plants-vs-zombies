@@ -12,7 +12,6 @@ import java.util.ArrayList;
 
 public class CherryBomb extends Plant {
     protected Timeline timeline;
-    public static final int PRICE = 150;
 
     public CherryBomb(Grid grid, StackPane stackPane, int row, int column){
         super(grid, stackPane, row, column, "/plants/CherryBomb.gif", 4);

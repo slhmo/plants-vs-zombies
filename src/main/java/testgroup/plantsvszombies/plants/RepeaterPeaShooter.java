@@ -7,7 +7,6 @@ import javafx.util.Duration;
 import testgroup.plantsvszombies.Grid;
 
 public class RepeaterPeaShooter extends PeaShooter{
-    public static final int PRICE = 200;
 
     public RepeaterPeaShooter(Grid grid, StackPane stackPane, int row, int column) {
         super(grid, stackPane, row, column, "/plants/repeater.gif", 4);

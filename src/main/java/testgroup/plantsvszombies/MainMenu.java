@@ -168,7 +168,7 @@ public class MainMenu {     // singleton class
             continueGame.setOpacity(1);
         });
         continueGame.setOnMouseClicked(event -> {
-            playDay.createGame();
+            playDay.continueGame();
         });
 
     }

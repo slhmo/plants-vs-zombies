@@ -12,7 +12,6 @@ import testgroup.plantsvszombies.zombies.Zombie;
 
 public class Jalapeno extends Plant{
     protected Timeline timeline;
-    public static final int PRICE = 150;
     protected ImageView explosionImg;
 
     public Jalapeno(Grid grid, StackPane stackPane, int row, int column){
