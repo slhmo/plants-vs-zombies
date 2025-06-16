@@ -2,7 +2,6 @@ package testgroup.plantsvszombies;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
@@ -11,7 +10,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import testgroup.plantsvszombies.plants.*;
-import testgroup.plantsvszombies.zombies.SimpleZombie;
 import testgroup.plantsvszombies.zombies.ZombieGenerator;
 
 import java.io.*;
@@ -19,16 +17,18 @@ import java.util.ArrayList;
 import java.util.Random;
 
 
-public class PlayDay implements Serializable {
-    private StackPane root;
-    AnchorPane anchorPane = null;
+public class PlayGame implements Serializable {
+    private transient StackPane root;
+    transient AnchorPane anchorPane = null;
     Grid grid;
-    GridPane gridPane;
-    Selector selector;
-    Timeline sunGenerator;
+    transient GridPane gridPane;
+    transient Selector selector;
+    transient Timeline sunGenerator;
+    ArrayList<Card> chosenCards;
+    ZombieGenerator zombieGenerator;
 
 
-    public PlayDay(StackPane root) {
+    public PlayGame(StackPane root) {
         this.root = root;
     }
 
@@ -38,7 +38,7 @@ public class PlayDay implements Serializable {
         Task<Void> task = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                heavyTask();
+                heavyTaskCreate();
                 return null;
             }
         };
@@ -60,7 +60,66 @@ public class PlayDay implements Serializable {
         grid.resumeAll();
     }
 
-    private void heavyTask() {
+    public void loadGame(int balance, ArrayList<Integer> chosenCardsId, Grid grid) {
+        LoadingScreen loadingScreen = new LoadingScreen(root);
+
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                heavyTaskLoad(balance, chosenCardsId, grid);
+                return null;
+            }
+        };
+
+        loadingScreen.runTask(task);
+        task.setOnSucceeded(event -> {
+            loadingScreen.done();
+            root.getChildren().clear();
+            root.getChildren().add(anchorPane);
+            System.out.println(root.getChildren());
+        });
+    }
+
+    private void heavyTaskLoad(int balance, ArrayList<Integer> chosenCardsId, Grid grid) {
+        try {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        this.grid = grid;
+        anchorPane = new AnchorPane();
+        ImageView frontYardImg = new ImageView("FrontYard.png");
+        frontYardImg.setFitWidth(1920);
+        frontYardImg.setFitHeight(1080);
+        ImageView menuButton = createMenuButton();
+        anchorPane.getChildren().addAll(frontYardImg, menuButton);
+
+        Card.revert();
+        chosenCards = new ArrayList<>();
+        for (int i : chosenCardsId) {
+            chosenCards.add(Card.getCards()[i]);
+        }
+
+        LoadSaveGame loadSaveGame = new LoadSaveGame(grid, this);
+        selector = new Selector(anchorPane, chosenCards, balance);
+
+        gridPane = createGridPane();
+        anchorPane.getChildren().add(gridPane);
+        loadSaveGame.loadGame(anchorPane, gridPane, selector);
+
+        sunGenerator = new Timeline(new KeyFrame(Duration.seconds(15), event1 -> {
+            Random random = new Random();
+            new SunPoint(anchorPane, selector, random.nextInt(300, 1500), random.nextInt(150, 800));
+        }));
+        sunGenerator.setCycleCount(-1);
+        sunGenerator.play();
+        zombieGenerator = new ZombieGenerator(this.grid, anchorPane, this);
+        zombieGenerator.generateZombies();
+    }
+
+    private void heavyTaskCreate() {
         try { //todo
             Thread.sleep(400);
         } catch (InterruptedException e) {
@@ -75,12 +134,13 @@ public class PlayDay implements Serializable {
         ImageView menuButton = createMenuButton();
         anchorPane.getChildren().addAll(frontYardImg, menuButton);
 
-        createChooserMenu();
+        Card.revert();
 
+        createChooserMenu();
     }
 
     private void createChooserMenu() {
-        ArrayList<Card> chosenCards = new ArrayList<>(6);
+        chosenCards = new ArrayList<>(6);
 
         ImageView chooserMenuImg = new ImageView(getClass().getResource("/selector/chooserMenu.png").toString());
         chooserMenuImg.setFitWidth(600);
@@ -127,18 +187,19 @@ public class PlayDay implements Serializable {
         play.setLayoutY(800);
         play.setOnMouseClicked(event -> {
             if (chosenCards.size() == 6) {
-                Card.revert();
                 anchorPane.getChildren().removeAll(chooserMenuImg, chooserMenuGrid, play);
-                selector = new Selector(anchorPane, chosenCards);
+                selector = new Selector(anchorPane, chosenCards, 2500);
                 gridPane = createGridPane();
                 anchorPane.getChildren().add(gridPane);
-                grid = new Grid(this, anchorPane);
+                grid = new Grid(this, anchorPane, chosenCards);
                 sunGenerator = new Timeline(new KeyFrame(Duration.seconds(15), event1 -> {
                     Random random = new Random();
                     new SunPoint(anchorPane, selector, random.nextInt(300, 1500), random.nextInt(150, 800));
                 }));
                 sunGenerator.setCycleCount(-1);
                 sunGenerator.play();
+                zombieGenerator = new ZombieGenerator(this.grid, anchorPane, this);
+                zombieGenerator.generateZombies();
             }
         });
 
@@ -302,6 +363,12 @@ public class PlayDay implements Serializable {
         saveGameImg.setOnMouseClicked(event -> {
             try {
                 ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("saves/save.dat"));
+                out.writeInt(selector.getBalance());
+                ArrayList<Integer> chosenCardsId = new ArrayList<>();
+                for (Card card : chosenCards) {
+                    chosenCardsId.add(card.getId());
+                }
+                out.writeObject(chosenCardsId);
                 out.writeObject(grid);
                 out.flush();
             } catch (IOException e) {
@@ -344,14 +411,25 @@ public class PlayDay implements Serializable {
     }
 
     public void gameWon() {
-
+        System.out.println("won");
+        Button button = new Button("won");
+        button.setLayoutX(800);
+        button.setLayoutY(400);
+        button.setOnMouseClicked(event1 -> {
+            grid.stopAll();
+            root.getChildren().clear();
+            MainMenu.createMenu(root);
+        });
+        anchorPane.getChildren().add(button);
     }
 
     public void stop() {
+        zombieGenerator.stop();
         sunGenerator.pause();
     }
 
     public void resume() {
+        zombieGenerator.resume();
         sunGenerator.play();
     }
 }

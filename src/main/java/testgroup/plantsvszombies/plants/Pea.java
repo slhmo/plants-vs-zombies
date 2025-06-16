@@ -15,12 +15,13 @@ public class Pea implements Serializable {
     private int x;
     private int row;
     private Plant rootPlant;
-    protected ImageView image;
+    protected transient ImageView image;
     private transient AnchorPane anchorPane;
     private transient Timeline timeline;
     private static final double speed = 2;
     Grid grid;
     private int originX;
+    String imageUrl;
 
     public Pea(Plant rootPlant, StackPane stackPane, Grid grid) {
         new Pea(rootPlant, stackPane, grid, "/plants/pea.png");
@@ -31,6 +32,7 @@ public class Pea implements Serializable {
         this.anchorPane = (AnchorPane) stackPane.getParent().getParent();
 //        System.out.println(anchorPane.getChildren());
         this.grid = grid;
+        this.imageUrl = imageUrl;
 
         x = 480 + rootPlant.column * 152 + 105;
         originX = x;
@@ -46,7 +48,6 @@ public class Pea implements Serializable {
         grid.placePea(this, row);
         anchorPane.getChildren().add(1, image);
         timeline.play();
-
     }
 
     private void move() {
@@ -58,6 +59,7 @@ public class Pea implements Serializable {
         return x;
     }
     public void vanish() {
+        System.out.println("pea vanishing");
         anchorPane.getChildren().remove(image);
     }
 
@@ -76,6 +78,25 @@ public class Pea implements Serializable {
     }
 
     public void resume() {
+        timeline.play();
+    }
+
+    public ImageView getImage() {
+        return image;
+    }
+
+    public void loadPea(AnchorPane anchorPane) {
+        this.anchorPane = anchorPane;
+
+        image = new ImageView(getClass().getResource(imageUrl).toString());
+        image.setX(x);
+        image.setY(170 + row * 175 - 20);
+
+        timeline = new Timeline(new KeyFrame(Duration.seconds(0.025), event -> {
+            move();
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        anchorPane.getChildren().add(1, image);
         timeline.play();
     }
 }

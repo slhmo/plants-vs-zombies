@@ -10,8 +10,8 @@ import testgroup.plantsvszombies.Selector;
 import testgroup.plantsvszombies.zombies.Zombie;
 
 public class Sunflower extends Plant{
-    protected Timeline timeline;
-    private Selector selector;
+    protected transient Timeline timeline;
+    private transient Selector selector;
 
     public Sunflower(Grid grid, StackPane stackPane, int row, int column, Selector selector) {
         super(grid, stackPane, row, column, "/plants/sunflower.gif", 4);
@@ -34,5 +34,12 @@ public class Sunflower extends Plant{
     public void resume() {
         timeline.play();
     }
+
+    @Override
+    public void loadPlant(StackPane stackPane, Selector selector) {
+        grid.removePlant(this);
+        new Sunflower(grid, stackPane, row, column, selector);
+    }
+
 
 }

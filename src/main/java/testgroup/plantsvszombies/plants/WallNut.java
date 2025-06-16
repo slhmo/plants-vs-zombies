@@ -7,6 +7,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import testgroup.plantsvszombies.Grid;
+import testgroup.plantsvszombies.Selector;
 import testgroup.plantsvszombies.zombies.Zombie;
 
 public class WallNut extends Plant {
@@ -23,27 +24,8 @@ public class WallNut extends Plant {
     }
 
     @Override
-    public void getEaten(Zombie zombie) {
-        if (!zombiesEating.contains(zombie))
-            zombiesEating.add(zombie);
-        if (HP == 7)
-            switchImage(new ImageView(getClass().getResource("/plants/WallNut1.gif").toString()));
-
-        if (HP == 4)
-            switchImage(new ImageView(getClass().getResource("/plants/WallNut2.gif").toString()));
-
-        if (HP == 0) {
-            vanish();
-            for (Zombie zombie1 : zombiesEating) {
-                if (zombie1.getCurrent_HP() > 0) {
-                    zombie1.stopEating();
-                }
-            }
-        }
-        ColorAdjust eatenEffect = new ColorAdjust();
-        eatenEffect.setSaturation(1);
-        eatenEffect.setBrightness(0.2);
-        image.setEffect(eatenEffect);
+    public void loadPlant(StackPane stackPane, Selector selector) {
+        grid.removePlant(this);
+        new WallNut(grid, stackPane, row, column);
     }
-
 }

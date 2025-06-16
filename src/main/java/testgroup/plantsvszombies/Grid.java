@@ -2,6 +2,7 @@ package testgroup.plantsvszombies;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
 import testgroup.plantsvszombies.plants.Card;
@@ -26,19 +27,17 @@ public class Grid implements Serializable {
 
     private transient Timeline timeline;
 
-    private transient PlayDay playDay;
-    ZombieGenerator zombieGenerator;
+    private transient PlayGame playGame;
+    ArrayList<Card> chosenCards;
 
-    public Grid(PlayDay playDay, AnchorPane anchorPane) {
+    public Grid(PlayGame playGame, AnchorPane anchorPane, ArrayList<Card> chosenCards) {
         for (int i = 0; i<5; i++) {
             zombies[i] = new ArrayList<>();
             peas[i] = new ArrayList<>();
         }
 
-        zombieGenerator = new ZombieGenerator(this, anchorPane);
-        zombieGenerator.generateZombies();
-
-        this.playDay = playDay;
+        this.playGame = playGame;
+        this.chosenCards = chosenCards;
 
         timeline = new Timeline(new KeyFrame(Duration.seconds(0.0025), event -> {
             update();
@@ -51,6 +50,10 @@ public class Grid implements Serializable {
         }));
         trace.setCycleCount(Timeline.INDEFINITE);
 //        trace.play();
+    }
+
+    public ArrayList<Card> getChosenCards() {
+        return chosenCards;
     }
 
     public void update() {
@@ -99,7 +102,8 @@ public class Grid implements Serializable {
             if (zombie == null)
                 continue;
             if (zombie.getX() <= GRID_START_X) {
-                playDay.gameLost();
+                playGame.gameLost();
+                return;
             }
         }
 
@@ -154,9 +158,9 @@ public class Grid implements Serializable {
 
     public void removePea(Pea pea) {
         for (ArrayList<Pea> row : peas) {
-            for (Pea tmp : row) {
-                if (pea == tmp)
-                    row.remove(tmp);
+            for (int i = row.size()-1; i>=0;i--) {
+                if (pea == row.get(i))
+                    row.remove(i);
             }
         }
     }
@@ -197,7 +201,6 @@ public class Grid implements Serializable {
     }
 
     public void stopAll() {
-        zombieGenerator.stop();
         Card.stop();
 
         for (int i = 0; i<zombies.length; i++) {
@@ -224,13 +227,13 @@ public class Grid implements Serializable {
             }
         }
 
-        playDay.stop();
+        playGame.stop();
         timeline.pause();
     }
+
     public void resumeAll() {
         timeline.play();
         Card.resume();
-        zombieGenerator.resume();
         for (int i = 0; i<zombies.length; i++) {
             for (int j = zombies[i].size()-1; j>=0; j--) {
                 if (zombies[i].get(j) != null)
@@ -251,7 +254,7 @@ public class Grid implements Serializable {
                     plants[i][j].resume();
             }
         }
-        playDay.resume();
+        playGame.resume();
     }
 
     public boolean noZombiesInMap() {
@@ -261,5 +264,18 @@ public class Grid implements Serializable {
                 tmp = false;
         }
         return tmp;
+    }
+
+    public ArrayList<Pea>[] getPeas() {
+        return peas;
+    }
+
+    public void loadGrid(PlayGame game) {
+        this.playGame = game;
+        timeline = new Timeline(new KeyFrame(Duration.seconds(0.0025), event -> {
+            update();
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
     }
 }

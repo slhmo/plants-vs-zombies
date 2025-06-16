@@ -11,12 +11,12 @@ import testgroup.plantsvszombies.plants.Plant;
 import java.io.Serializable;
 
 
-public class Zombie implements Serializable {
-    protected ImageView walkImg;
-    protected ImageView eatImg;
-    protected ImageView dieImg;
-    protected ImageView burnImg;
-    protected ImageView image;
+public abstract class Zombie implements Serializable {
+    transient protected ImageView walkImg;
+    transient protected ImageView eatImg;
+    transient protected ImageView dieImg;
+    transient protected ImageView burnImg;
+    transient protected ImageView image;
 
     protected int current_HP;
     int speed;
@@ -50,7 +50,7 @@ public class Zombie implements Serializable {
         return row;
     }
 
-    public Zombie(Grid grid, AnchorPane anchorPane, int row, String walkImageUrl, String eatImageUrl, String dieImgUrl, int HP, int speed){
+    public Zombie(Grid grid, AnchorPane anchorPane, int row, int startingX, String walkImageUrl, String eatImageUrl, String dieImgUrl, int HP, int speed){
         walkImg = new ImageView(getClass().getResource(walkImageUrl).toString());
         eatImg = new ImageView(getClass().getResource(eatImageUrl).toString());
         dieImg = new ImageView(getClass().getResource(dieImgUrl).toString());
@@ -62,7 +62,7 @@ public class Zombie implements Serializable {
         this.anchorPane = anchorPane;
         this.grid = grid;
 
-        x = 1800;
+        x = startingX;
         walkImg.setX(x);
         walkImg.setY(row * 175 + 120);
         walkImg.setFitWidth(120);
@@ -85,6 +85,14 @@ public class Zombie implements Serializable {
         }));
         moveTimeLine.setCycleCount(Timeline.INDEFINITE);
         moveTimeLine.play();
+
+        snowTimeline = new Timeline(new KeyFrame(Duration.seconds(4), event -> {
+            snowy = false;
+            this.speed *= 2;
+            image.setEffect(null);
+        }));
+        snowTimeline.setCycleCount(1);
+
     }
 
     public void getNormalHit() {
@@ -98,16 +106,10 @@ public class Zombie implements Serializable {
     public void getSnowHit() {
         if (!snowy) {
             snowy = true;
-            snowTimeline = new Timeline(new KeyFrame(Duration.seconds(4), event -> {
-                snowy = false;
-                speed *= 2;
-                image.setEffect(null);
-            }));
             speed /= 2;
             ColorAdjust snowEffect = new ColorAdjust();
             snowEffect.setHue(-0.5);
             image.setEffect(snowEffect);
-            snowTimeline.setCycleCount(1);
             snowTimeline.play();
         }
         snowTimeline.playFromStart();
@@ -213,4 +215,15 @@ public class Zombie implements Serializable {
     public String toString() {
         return "zombie x: " + x + ", y: " + getY();
     }
+
+    public ImageView getImage() {
+        return image;
+    }
+
+    public void restoreImage(AnchorPane anchorPane) {
+        this.anchorPane = anchorPane;
+        anchorPane.getChildren().add(image);
+    }
+
+    public abstract void loadZombie(AnchorPane anchorPane1) ;
 }

@@ -6,10 +6,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import testgroup.plantsvszombies.Grid;
+import testgroup.plantsvszombies.Selector;
 import testgroup.plantsvszombies.zombies.Zombie;
 
 public class PeaShooter extends Plant{
-    protected Timeline timeline;
+    protected transient Timeline timeline;
 
     public PeaShooter(Grid grid, StackPane stackPane, int row, int column) {
         new PeaShooter(grid, stackPane, row, column, "/plants/peaShooter.gif", 4);
@@ -42,5 +43,11 @@ public class PeaShooter extends Plant{
     public void resume() {
         timeline.play();
     }
+
+    public void loadPlant(StackPane stackPane, Selector selector) {
+        grid.removePlant(this);
+        new PeaShooter(grid, stackPane, row, column);
+    }
+
 
 }

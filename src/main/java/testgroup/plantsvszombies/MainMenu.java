@@ -5,12 +5,18 @@ import javafx.concurrent.Task;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import testgroup.plantsvszombies.plants.Card;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
 
 public class MainMenu {     // singleton class
     private StackPane root;
     private AnchorPane anchorPane;
     private static MainMenu instance = null;
-    PlayDay playDay = null;
+    PlayGame playGame = null;
     ImageView continueGame;
 
 
@@ -83,8 +89,8 @@ public class MainMenu {     // singleton class
         });
         newGameImg.setOnMouseClicked(event -> {
             updateContinueButton();
-            playDay = new PlayDay(root);
-            playDay.createGame();
+            playGame = new PlayGame(root);
+            playGame.createGame();
             //todo
         });
 
@@ -114,6 +120,20 @@ public class MainMenu {     // singleton class
             loadGameImg.setOpacity(1);
         });
         loadGameImg.setOnMouseClicked(event -> {
+            updateContinueButton();
+            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("saves/save.dat"));){
+                int selectorBalance = in.readInt();
+                ArrayList<Integer> chosenCardsId = (ArrayList<Integer>) in.readObject();
+                Grid grid = (Grid) in.readObject();
+                playGame = new PlayGame(root);
+                playGame.loadGame(selectorBalance, chosenCardsId, grid);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
             //todo
         });
 
@@ -168,7 +188,7 @@ public class MainMenu {     // singleton class
             continueGame.setOpacity(1);
         });
         continueGame.setOnMouseClicked(event -> {
-            playDay.continueGame();
+            playGame.continueGame();
         });
 
     }

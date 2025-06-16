@@ -8,11 +8,12 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import testgroup.plantsvszombies.Grid;
+import testgroup.plantsvszombies.Selector;
 import testgroup.plantsvszombies.zombies.Zombie;
 
 public class Jalapeno extends Plant{
-    protected Timeline timeline;
-    protected ImageView explosionImg;
+    protected transient Timeline timeline;
+    protected transient ImageView explosionImg;
 
     public Jalapeno(Grid grid, StackPane stackPane, int row, int column){
         super(grid, stackPane, row, column, "/plants/jalapeno.gif", 4);
@@ -60,4 +61,10 @@ public class Jalapeno extends Plant{
     public void resume() {
         timeline.play();
     }
+
+    public void loadPlant(StackPane stackPane, Selector selector) {
+        grid.removePlant(this);
+        new Jalapeno(grid, stackPane, row, column);
+    }
+
 }

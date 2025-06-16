@@ -5,6 +5,7 @@ import javafx.animation.Timeline;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import testgroup.plantsvszombies.Grid;
+import testgroup.plantsvszombies.Selector;
 
 public class RepeaterPeaShooter extends PeaShooter{
 
@@ -24,4 +25,11 @@ public class RepeaterPeaShooter extends PeaShooter{
             new Pea(this, stackPane, grid);
         }
     }
+
+    @Override
+    public void loadPlant(StackPane stackPane, Selector selector) {
+        grid.removePlant(this);
+        new RepeaterPeaShooter(grid, stackPane, row, column);
+    }
+
 }

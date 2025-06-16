@@ -10,14 +10,15 @@ import java.util.ArrayList;
 public class Selector{
     AnchorPane root ;
     AnchorPane anchorPane;
-    private int sunBalance = 25000;
+    private int sunBalance;
     Label sunValueCounter;
     private Card selectedCard;
     private ArrayList<Card> cards;
 
-    public Selector (AnchorPane root, ArrayList<Card> cards) {
+    public Selector (AnchorPane root, ArrayList<Card> cards, int initialBalance) {
         this.root = root;
         this.cards = cards;
+        sunBalance = initialBalance;
         anchorPane = createSelector();
         root.getChildren().add(anchorPane);
     }
@@ -79,11 +80,11 @@ public class Selector{
     }
 
     private void placeCard(Card card, int n) {
+        System.out.println("card: " + card + "placed: " + (40*n + 70));
         card.getImageView().setFitWidth(40);
         card.getImageView().setFitHeight(52);
         card.getImageView().setX(40*n + 70);
         card.getImageView().setY(25);
-        System.out.println("card: " + card + "placed: " + (40*n + 70));
         card.getImageView().setOnMouseClicked(event -> {
             if (selectedCard == card)
                 deSelect();

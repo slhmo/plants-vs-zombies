@@ -2,19 +2,21 @@ package testgroup.plantsvszombies.plants;
 
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import testgroup.plantsvszombies.Grid;
+import testgroup.plantsvszombies.Selector;
 import testgroup.plantsvszombies.zombies.Zombie;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
 public abstract class Plant implements Serializable {
-    protected ImageView image;
+    protected transient ImageView image;
     protected Grid grid;
     protected int row;
     protected int column;
-    protected StackPane stackPane;
+    protected transient StackPane stackPane;
     public int HP;
     protected ArrayList<Zombie> zombiesEating = new ArrayList<>();
 
@@ -84,4 +86,14 @@ public abstract class Plant implements Serializable {
         stackPane.getChildren().add(image);
     }
 
+    public ImageView getImage() {
+        return image;
+    }
+
+    public void restoreImg(StackPane stackPane) {
+        this.stackPane =stackPane;
+        stackPane.getChildren().add(image);
+    }
+
+    public abstract void loadPlant(StackPane stackPane, Selector selector);
 }

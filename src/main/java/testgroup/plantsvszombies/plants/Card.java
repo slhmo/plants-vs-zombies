@@ -6,7 +6,9 @@ import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
-public class Card {
+import java.io.Serializable;
+
+public class Card implements Serializable {
     private static Card[] cards = new Card[18];
 
     static {
@@ -20,9 +22,9 @@ public class Card {
         cards[7] = new Card("/selector/card_jalapeno.png", 7, 6, 125);
     }
 
-    private ImageView image;
+    private transient ImageView image;
     private int id;
-    private Timeline coolDownTimeLine;
+    private transient Timeline coolDownTimeLine;
     private boolean coolDownFinished = true;
     private int price;
 

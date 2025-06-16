@@ -6,12 +6,13 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import testgroup.plantsvszombies.Grid;
 import testgroup.plantsvszombies.Main;
+import testgroup.plantsvszombies.Selector;
 import testgroup.plantsvszombies.zombies.Zombie;
 
 import java.util.ArrayList;
 
 public class CherryBomb extends Plant {
-    protected Timeline timeline;
+    protected transient Timeline timeline;
 
     public CherryBomb(Grid grid, StackPane stackPane, int row, int column){
         super(grid, stackPane, row, column, "/plants/CherryBomb.gif", 4);
@@ -43,11 +44,17 @@ public class CherryBomb extends Plant {
 
     @Override
     public void stop() {
-        timeline.stop();
+        timeline.pause();
     }
 
     @Override
     public void resume() {
         timeline.play();
     }
+
+    public void loadPlant(StackPane stackPane, Selector selector) {
+        grid.removePlant(this);
+        new CherryBomb(grid, stackPane, row, column);
+    }
+
 }
