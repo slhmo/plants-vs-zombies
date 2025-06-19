@@ -27,16 +27,16 @@ public class Grid implements Serializable {
 
     private transient Timeline timeline;
 
-    private transient PlayGame playGame;
+    private transient Playable playable;
     ArrayList<Card> chosenCards;
 
-    public Grid(PlayGame playGame, AnchorPane anchorPane, ArrayList<Card> chosenCards) {
+    public Grid(Playable playable, AnchorPane anchorPane, ArrayList<Card> chosenCards) {
         for (int i = 0; i<5; i++) {
             zombies[i] = new ArrayList<>();
             peas[i] = new ArrayList<>();
         }
 
-        this.playGame = playGame;
+        this.playable = playable;
         this.chosenCards = chosenCards;
 
         timeline = new Timeline(new KeyFrame(Duration.seconds(0.0025), event -> {
@@ -102,7 +102,7 @@ public class Grid implements Serializable {
             if (zombie == null)
                 continue;
             if (zombie.getX() <= GRID_START_X) {
-                playGame.gameLost();
+                playable.gameLost();
                 return;
             }
         }
@@ -201,6 +201,7 @@ public class Grid implements Serializable {
     }
 
     public void stopAll() {
+        System.out.println("grid stop all");
         Card.stop();
 
         for (int i = 0; i<zombies.length; i++) {
@@ -227,11 +228,12 @@ public class Grid implements Serializable {
             }
         }
 
-        playGame.stop();
+        playable.stop();
         timeline.pause();
     }
 
     public void resumeAll() {
+        System.out.println("grid resume");
         timeline.play();
         Card.resume();
         for (int i = 0; i<zombies.length; i++) {
@@ -254,7 +256,7 @@ public class Grid implements Serializable {
                     plants[i][j].resume();
             }
         }
-        playGame.resume();
+        playable.resume();
     }
 
     public boolean noZombiesInMap() {
@@ -271,7 +273,7 @@ public class Grid implements Serializable {
     }
 
     public void loadGrid(PlayGame game) {
-        this.playGame = game;
+        this.playable = game;
         timeline = new Timeline(new KeyFrame(Duration.seconds(0.0025), event -> {
             update();
         }));

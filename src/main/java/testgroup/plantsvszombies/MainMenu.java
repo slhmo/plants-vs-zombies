@@ -5,6 +5,7 @@ import javafx.concurrent.Task;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import testgroup.plantsvszombies.multiPlayer.MultiplayerMenu;
 import testgroup.plantsvszombies.plants.Card;
 
 import java.io.FileInputStream;
@@ -153,6 +154,7 @@ public class MainMenu {     // singleton class
             multiplayerImg.setOpacity(1);
         });
         multiplayerImg.setOnMouseClicked(event -> {
+            new MultiplayerMenu(root);
             //todo
         });
 

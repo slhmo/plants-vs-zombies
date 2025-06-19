@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 
-public class PlayGame implements Serializable {
+public class PlayGame implements Playable {
     private transient StackPane root;
     transient AnchorPane anchorPane = null;
     Grid grid;
@@ -188,7 +188,7 @@ public class PlayGame implements Serializable {
         play.setOnMouseClicked(event -> {
             if (chosenCards.size() == 6) {
                 anchorPane.getChildren().removeAll(chooserMenuImg, chooserMenuGrid, play);
-                selector = new Selector(anchorPane, chosenCards, 2500);
+                selector = new Selector(anchorPane, chosenCards, 250);
                 gridPane = createGridPane();
                 anchorPane.getChildren().add(gridPane);
                 grid = new Grid(this, anchorPane, chosenCards);

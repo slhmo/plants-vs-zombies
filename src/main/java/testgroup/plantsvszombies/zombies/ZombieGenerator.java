@@ -6,24 +6,27 @@ import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
 import testgroup.plantsvszombies.Grid;
 import testgroup.plantsvszombies.PlayGame;
+import testgroup.plantsvszombies.Playable;
 
 import java.io.Serializable;
 import java.util.Random;
 
 public class ZombieGenerator implements Serializable {
-    private Grid grid;
-    private transient AnchorPane anchorPane;
+    protected Grid grid;
+    protected transient AnchorPane anchorPane;
     int maxType = 1;
-    int counter = 10;
-    private Random random;
+    int counter = 0;
+    protected Random random;
     transient Timeline timeline;
-    private transient PlayGame playGame;
+    protected transient Playable playable;
 
-    public ZombieGenerator(Grid grid, AnchorPane anchorPane, PlayGame playGame) {
+    public ZombieGenerator(Grid grid, AnchorPane anchorPane, Playable playable) {
         this.grid = grid;
         this.anchorPane = anchorPane;
-        this.playGame = playGame;
+        this.playable = playable;
     }
+
+    public ZombieGenerator() {}
 
     public void generateZombies() {
         random = new Random();
@@ -78,7 +81,7 @@ public class ZombieGenerator implements Serializable {
 
             else {
                 if (grid.noZombiesInMap()) {
-                    playGame.gameWon();
+                    playable.gameWon();
                     return;
                 }
             }
@@ -90,7 +93,7 @@ public class ZombieGenerator implements Serializable {
         timeline.play();
     }
 
-    private void allRows(int maxType) {
+    protected void allRows(int maxType) {
         System.out.println("all rows");
         for (int row = 0; row < 5; row++) {
             int type = random.nextInt(maxType) + 1;
@@ -119,7 +122,7 @@ public class ZombieGenerator implements Serializable {
         }
     }
 
-    private void generateZombie(int maxType) {
+    protected void generateZombie(int maxType) {
         int type = random.nextInt(maxType) + 1;   // 1: simple 2: conehead 3: screendoor 4: imp
         int row = random.nextInt(5);
 //        System.out.println("generating zombies type: " + type + "row: " + row);
