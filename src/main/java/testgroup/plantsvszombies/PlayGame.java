@@ -26,6 +26,7 @@ public class PlayGame implements Playable {
     transient Timeline sunGenerator;
     ArrayList<Card> chosenCards;
     ZombieGenerator zombieGenerator;
+    WonLostMenu<PlayGame> menu;
 
 
     public PlayGame(StackPane root) {
@@ -135,6 +136,7 @@ public class PlayGame implements Playable {
         anchorPane.getChildren().addAll(frontYardImg, menuButton);
 
         Card.revert();
+        menu = new WonLostMenu<>(root, this);
 
         createChooserMenu();
     }
@@ -188,7 +190,7 @@ public class PlayGame implements Playable {
         play.setOnMouseClicked(event -> {
             if (chosenCards.size() == 6) {
                 anchorPane.getChildren().removeAll(chooserMenuImg, chooserMenuGrid, play);
-                selector = new Selector(anchorPane, chosenCards, 250);
+                selector = new Selector(anchorPane, chosenCards, 25000);
                 gridPane = createGridPane();
                 anchorPane.getChildren().add(gridPane);
                 grid = new Grid(this, anchorPane, chosenCards);
@@ -401,26 +403,14 @@ public class PlayGame implements Playable {
 
     public void gameLost() {
         grid.stopAll();
-        Button button = new Button("lost");
-        button.setLayoutX(800);
-        button.setOnMouseClicked(event1 -> {
-            root.getChildren().clear();
-            MainMenu.createMenu(root);
-        });
-        anchorPane.getChildren().add(button);
+        root.getChildren().clear();
+        menu.createOfflineLostMenu();
     }
 
     public void gameWon() {
-        System.out.println("won");
-        Button button = new Button("won");
-        button.setLayoutX(800);
-        button.setLayoutY(400);
-        button.setOnMouseClicked(event1 -> {
-            grid.stopAll();
-            root.getChildren().clear();
-            MainMenu.createMenu(root);
-        });
-        anchorPane.getChildren().add(button);
+        grid.stopAll();
+        root.getChildren().clear();
+        menu.createOfflineWonMenu();
     }
 
     public void stop() {

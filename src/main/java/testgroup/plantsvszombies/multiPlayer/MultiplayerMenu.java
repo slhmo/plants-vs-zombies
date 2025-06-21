@@ -98,7 +98,7 @@ public class MultiplayerMenu {
             AtomicBoolean firstTimeClickingOnTextBox = new AtomicBoolean(true);
             ipTextField.setOnMouseClicked(event1 -> {
                 if (firstTimeClickingOnTextBox.get()) {
-                    ipTextField.setText("");
+                    ipTextField.setText("192.168.");
                     firstTimeClickingOnTextBox.set(false);
                 }
             });

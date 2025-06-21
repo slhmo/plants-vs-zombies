@@ -75,8 +75,9 @@ public class ZombieGenerator implements Serializable {
                 }
             }
 
-            else if (counter == 100 || counter == 102 || counter == 104) {  // end game attack
-                allRows(maxType);
+            else if (counter < 105) {  // end game attack
+                if (counter == 100 || counter == 102 || counter == 104)
+                    allRows(maxType);
             }
 
             else {

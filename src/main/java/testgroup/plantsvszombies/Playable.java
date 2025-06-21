@@ -5,4 +5,5 @@ public interface Playable {
     public void resume();
     public void gameLost();
     public void gameWon();
+    public void createGame();
 }

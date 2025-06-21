@@ -21,6 +21,7 @@ public class PVZClient extends Thread{
     private StackPane root;
     private AnchorPane anchorPane;
     ClientGame clientGame;
+    Label stopGameLabel = new Label();
 
 
     public PVZClient(StackPane root, AnchorPane anchorPane, String ip) {
@@ -48,12 +49,11 @@ public class PVZClient extends Thread{
 
     private class InputHandler extends Thread {
         public void run() {
+            String input = null;
             while (true) {
-                String input = null;
                 try {
                     input = in.readLine();
                     if ("END".equals(input)) {
-                        placeInputs(input);
                         break;
                     }
                 } catch (IOException e) {
@@ -62,6 +62,8 @@ public class PVZClient extends Thread{
                 System.out.println("client received message: " + input);
                 placeInputs(input);
             }
+            placeInputs(input);
+            System.out.println("input handler closed");
         }
     }
 
@@ -72,22 +74,27 @@ public class PVZClient extends Thread{
 
 
     private synchronized void placeInputs(String s) {
-        System.out.println(s);
         if ("END".equals(s)) {
-            sendMessage("END");
             shutDown();
         }
 
         else if ("STOP GAME".equals(s)) {
             clientGame.getGrid().stopAll();
             Platform.runLater(() -> {
-                Label tmp = new Label("game stopped");
-                anchorPane.getChildren().add(tmp);
+                stopGameLabel.setText("game stopped...");
+                stopGameLabel.setLayoutX(800);
+                stopGameLabel.setLayoutY(560);
+                stopGameLabel.setPrefSize(1000, 150);
+                stopGameLabel.setStyle("-fx-font-size: 55px; -fx-text-fill: gray;");
+                root.getChildren().add(stopGameLabel);
             });
         }
 
         else if ("RESUME GAME".equals(s)) {
             clientGame.getGrid().resumeAll();
+            Platform.runLater(() -> {
+                root.getChildren().remove(stopGameLabel);
+            });
         }
 
         else if ("WON".equals(s)) {

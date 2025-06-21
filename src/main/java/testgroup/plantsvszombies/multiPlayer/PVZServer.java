@@ -24,6 +24,7 @@ public class PVZServer extends Thread{
 
     private AnchorPane anchorPane;
     ServerGame serverGame;
+    Label stopGameLabel = new Label();
 
     public PVZServer(StackPane root, AnchorPane anchorPane) {
         this.root = root;
@@ -101,8 +102,12 @@ public class PVZServer extends Thread{
         if ("STOP GAME".equals(s)) {
             serverGame.getGrid().stopAll();
             Platform.runLater(() -> {
-                Label tmp = new Label("Player " + worker.id + " stopped game");
-                anchorPane.getChildren().add(tmp);
+                stopGameLabel.setText("Player " + worker.id + " stopped game...");
+                stopGameLabel.setLayoutX(760);
+                stopGameLabel.setLayoutY(560);
+                stopGameLabel.setPrefSize(1000, 150);
+                stopGameLabel.setStyle("-fx-font-size: 50px; -fx-text-fill: gray;");
+                root.getChildren().add(stopGameLabel);
             });
             for (ServerWorker worker1 : workers) {
                 if (worker1 != worker) {
@@ -114,6 +119,9 @@ public class PVZServer extends Thread{
 
         if ("RESUME GAME".equals(s)) {
             serverGame.getGrid().resumeAll();
+            Platform.runLater(() -> {
+                root.getChildren().remove(stopGameLabel);
+            });
             for (ServerWorker worker1 : workers) {
                 if (worker1 != worker) {
                     worker1.sendMessage("RESUME GAME");
@@ -122,6 +130,7 @@ public class PVZServer extends Thread{
         }
 
         if ("EXIT GAME".equals(s)) {
+            worker.sendMessage("END");
             worker.closeSocket();
             workers.remove(worker);
             if (workers.isEmpty()) {    // everyone left
@@ -138,17 +147,21 @@ public class PVZServer extends Thread{
 //                    worker1.sendMessage("Worker " + worker.id + " stopped game");
                 }
             }
+            send("END");
             Platform.runLater(() -> {
                 serverGame.othersWon(worker.id);
             });
         }
 
         if ("LOST".equals(s)) {
-            workers.remove(worker);
-            if (workers.isEmpty()) {
+            if (workers.size() == 1) {
                 Platform.runLater(() -> {
-                    serverGame.gameWon();
+                    serverGame.othersLost();
                 });
+            }
+            else{
+                worker.closeSocket();
+                workers.remove(worker);
             }
         }
     }

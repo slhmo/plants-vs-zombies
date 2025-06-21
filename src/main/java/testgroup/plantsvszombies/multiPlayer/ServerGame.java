@@ -29,6 +29,7 @@ public class ServerGame implements Playable {
     ArrayList<Card> chosenCards;
     ServerZombieGenerator zombieGenerator;
     PVZServer server;
+    WonLostMenu<ServerGame> menu;
 
     public ServerGame(StackPane root, PVZServer server) {
         this.root = root;
@@ -71,6 +72,7 @@ public class ServerGame implements Playable {
         anchorPane.getChildren().addAll(frontYardImg, menuButton);
 
         Card.revert();
+        menu = new WonLostMenu<>(root, this);
 
         createChooserMenu();
     }
@@ -310,7 +312,7 @@ public class ServerGame implements Playable {
 
         mainMenuImg.setOnMouseClicked(event -> {
             root.getChildren().clear();
-            server.send("EXIT GAME");
+            server.send("END");
             MainMenu mainMenu = MainMenu.createMenu(root);
         });
 
@@ -324,40 +326,26 @@ public class ServerGame implements Playable {
             server.send("END");
         }
         grid.stopAll();
-        Button button = new Button("lost");
-        button.setLayoutX(800);
-        button.setOnMouseClicked(event1 -> {
-            root.getChildren().clear();
-            MainMenu.createMenu(root);
-        });
-        anchorPane.getChildren().add(button);
+
+        menu.createMultiLostMenu();
     }
 
     public void othersWon(int playerID) {
-        server.send("END");
         grid.stopAll();
-        Label tmp = new Label("Player " + playerID + " WON!");
-        Button button = new Button("lost");
-        button.setLayoutX(800);
-        button.setOnMouseClicked(event1 -> {
-            root.getChildren().clear();
-            MainMenu.createMenu(root);
-        });
-        anchorPane.getChildren().addAll(button, tmp);
+        menu.createMultiOthersWon();
     }
 
     public void gameWon() {
         server.send("WON");
         server.send("END");
         grid.stopAll();
-        Button button = new Button("won");
-        button.setLayoutX(800);
-        button.setLayoutY(400);
-        button.setOnMouseClicked(event1 -> {
-            root.getChildren().clear();
-            MainMenu.createMenu(root);
-        });
-        anchorPane.getChildren().add(button);
+        menu.createMultiWonMenu();
+    }
+
+    public void othersLost() {
+        server.send("END");
+        grid.stopAll();
+        menu.createMultiWonMenu();
     }
 
     public void stop() {

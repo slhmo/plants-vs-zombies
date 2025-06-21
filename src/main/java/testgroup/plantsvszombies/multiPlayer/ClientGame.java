@@ -28,6 +28,8 @@ public class ClientGame implements Playable {
     Timeline sunGenerator;
     ArrayList<Card> chosenCards;
     PVZClient client;
+    WonLostMenu<ClientGame> menu;
+
 
     public ClientGame(StackPane root, PVZClient client) {
         this.root = root;
@@ -70,6 +72,7 @@ public class ClientGame implements Playable {
         anchorPane.getChildren().addAll(frontYardImg, menuButton);
 
         Card.revert();
+        menu = new WonLostMenu<>(root, this);
 
         createChooserMenu();
     }
@@ -318,38 +321,18 @@ public class ClientGame implements Playable {
     public void gameLost() {
         client.sendMessage("LOST");
         grid.stopAll();
-        Button button = new Button("lost");
-        button.setLayoutX(800);
-        button.setOnMouseClicked(event1 -> {
-            root.getChildren().clear();
-            MainMenu.createMenu(root);
-        });
-        anchorPane.getChildren().add(button);
+        menu.createMultiLostMenu();
     }
 
     public void othersWon() {
         grid.stopAll();
-        Label tmp = new Label("others WON!");
-        Button button = new Button("lost");
-        button.setLayoutX(800);
-        button.setOnMouseClicked(event1 -> {
-            root.getChildren().clear();
-            MainMenu.createMenu(root);
-        });
-        anchorPane.getChildren().addAll(button, tmp);
+        menu.createMultiOthersWon();
     }
 
     public void gameWon() {
         client.sendMessage("WON");
         grid.stopAll();
-        Button button = new Button("won");
-        button.setLayoutX(800);
-        button.setLayoutY(400);
-        button.setOnMouseClicked(event1 -> {
-            root.getChildren().clear();
-            MainMenu.createMenu(root);
-        });
-        anchorPane.getChildren().add(button);
+        menu.createMultiWonMenu();
     }
 
     public void stop() {
